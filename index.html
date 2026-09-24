@@ -1,0 +1,595 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Fechamento de Notas Automático | EduGrade</title>
+    <meta name="description" content="Automatize o fechamento de notas escolares com base em relatórios CSV de atividades e progresso. Processamento 100% no navegador com total privacidade." />
+    <meta property="og:title" content="Fechamento de Notas Automático | EduGrade" />
+    <meta property="og:description" content="Automatize o fechamento de notas escolares com base em relatórios CSV de atividades e progresso." />
+    <meta property="og:type" content="website" />
+    <meta name="twitter:card" content="summary_large_image" />
+
+    <!-- Google Fonts: Plus Jakarta Sans -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Folha de Estilos Customizada da Aplicação -->
+    <link rel="stylesheet" href="/style.css" />
+
+    <!-- Bibliotecas de Processamento Client-side (CDNs confiáveis) -->
+    <!-- PapaParse: Leitura resiliente de CSVs e encodings -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+    <!-- SheetJS (xlsx): Exportação nativa para planilhas Excel .xlsx -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <!-- jsPDF & AutoTable: Geração direta de documentos PDF oficiais com tabelas vetoriais nítidas -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+    <!-- html2pdf.js: Biblioteca complementar para exportação e renderização gráfica em PDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  </head>
+  <body>
+    <!-- Cabeçalho Principal da Aplicação -->
+    <header class="main-header">
+      <div class="header-content">
+        <div class="brand">
+          <div class="brand-icon">📊</div>
+          <div class="brand-text">
+            <h1>EduGrade</h1>
+            <p>Fechamento Automático de Notas a partir de Relatórios CSV</p>
+          </div>
+        </div>
+
+        <div class="header-badges">
+          <span class="privacy-badge" title="Seus arquivos são processados exclusivamente na memória do seu navegador. Nenhum dado de aluno é enviado para a internet.">
+            🛡️ 100% Offline no Navegador (Privacidade LGPD)
+          </span>
+        </div>
+      </div>
+    </header>
+
+    <!-- Cabeçalho especial exibido apenas na impressão de relatórios -->
+    <div class="print-header-only app-container">
+      <h2>Relatório de Fechamento de Notas - Diário de Classe</h2>
+      <p>Gerado via EduGrade em <span id="printDate"></span></p>
+    </div>
+
+    <!-- Conteúdo Principal -->
+    <main class="app-container">
+      
+      <!-- Guia Rápido de Instruções -->
+      <section class="card">
+        <div class="section-title">
+          <span>💡</span> Como Funciona o Fechamento de Notas
+        </div>
+        <p class="section-subtitle">
+          Basta carregar os relatórios de progresso exportados pelo sistema escolar. O cálculo é feito instantaneamente.
+        </p>
+
+        <div class="instructions-grid">
+          <div class="step-card">
+            <div class="step-number">1</div>
+            <div class="step-info">
+              <h4>Identificação da Matéria</h4>
+              <p>O nome da turma/disciplina é extraído automaticamente do nome do arquivo (ex: <code>Logica3B.csv</code>).</p>
+            </div>
+          </div>
+
+          <div class="step-card">
+            <div class="step-number">2</div>
+            <div class="step-info">
+              <h4>Detecção de Atividades</h4>
+              <p>Filtra todas as colunas com <strong>"Pause e Responda"</strong> ou <strong>"Registro"</strong> no cabeçalho.</p>
+            </div>
+          </div>
+
+          <div class="step-card">
+            <div class="step-number">3</div>
+            <div class="step-info">
+              <h4>Cálculo Proporcional</h4>
+              <p>Conta as atividades com status <strong>"Concluído"</strong> e calcula a nota proporcional de <strong>0,0 a 10,0</strong>.</p>
+            </div>
+          </div>
+
+          <div class="step-card">
+            <div class="step-number">4</div>
+            <div class="step-info">
+              <h4>Exportação Imediata</h4>
+              <p>Baixe a planilha pronta e formatada em <strong>Excel (.xlsx)</strong> ou <strong>CSV</strong> com 1 clique.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Área de Upload Drag and Drop -->
+      <section class="card">
+        <div class="dropzone" id="dropzone">
+          <div class="dropzone-icon">📁</div>
+          <div class="dropzone-text">
+            <h3>Arraste e solte seus relatórios CSV aqui</h3>
+            <p>
+              Você pode enviar múltiplos arquivos de uma só vez (ex: turmas ou matérias diferentes).
+              Formatos suportados: <strong>.csv</strong> com codificação UTF-8 ou Latin1.
+            </p>
+          </div>
+
+          <div class="dropzone-actions">
+            <input type="file" id="fileInput" class="file-input-hidden" accept=".csv, text/csv, application/vnd.ms-excel" multiple />
+            <button type="button" class="btn btn-primary" onclick="document.getElementById('fileInput').click()">
+              📂 Selecionar Arquivo(s) CSV
+            </button>
+            <button type="button" class="btn btn-secondary" id="btnLoadDemo" title="Experimente o sistema agora mesmo com dois arquivos de exemplo">
+              ✨ Carregar Dados de Exemplo
+            </button>
+          </div>
+        </div>
+
+        <!-- Lista de arquivos importados -->
+        <div id="uploadedFilesCard" class="uploaded-files-card" style="display: none;">
+          <div class="section-title" style="font-size: 0.95rem; margin-top: 16px;">
+            <span>📑</span> Arquivos Atualmente Carregados:
+          </div>
+          <div class="files-badge-list" id="uploadedFilesList">
+            <!-- Chips injetados dinamicamente via script.js -->
+          </div>
+        </div>
+      </section>
+
+      <!-- Painel de Métricas / Estatísticas do Fechamento -->
+      <section class="stats-grid">
+        <div class="stat-box">
+          <div class="stat-icon blue">👥</div>
+          <div>
+            <div class="stat-value" id="statTotalStudents">0</div>
+            <div class="stat-label">Total de Alunos</div>
+          </div>
+        </div>
+
+        <div class="stat-box">
+          <div class="stat-icon purple">📚</div>
+          <div>
+            <div class="stat-value" id="statTotalClasses">0</div>
+            <div class="stat-label">Turmas / Matérias</div>
+          </div>
+        </div>
+
+        <div class="stat-box">
+          <div class="stat-icon amber">🎯</div>
+          <div>
+            <div class="stat-value" id="statAvgGrade">0,0</div>
+            <div class="stat-label">Média Geral de Notas</div>
+          </div>
+        </div>
+
+        <div class="stat-box">
+          <div class="stat-icon green">📈</div>
+          <div>
+            <div class="stat-value" id="statApprovalRate">0%</div>
+            <div class="stat-label">Aproveitamento (Nota ≥ 6.0)</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Painel de Seleção de Critério de Atividades e Mapeamento de Colunas -->
+      <section class="calculation-mode-card">
+        <div class="mode-selector-wrapper">
+          <span class="mode-selector-label">
+            <span>🎯</span> Atividades para Nota:
+          </span>
+          <div class="segmented-control" role="group" aria-label="Modalidade de Atividades para Nota">
+            <button type="button" class="segmented-btn active" data-mode="both" id="modeBtnBoth" title="Contabiliza tanto Pause e Responda quanto Registro">
+              ✨ Ambos (Pause e Responda + Registro)
+            </button>
+            <button type="button" class="segmented-btn" data-mode="pause" id="modeBtnPause" title="Contabiliza apenas colunas que contenham 'Pause e Responda'">
+              ⏸️ Somente "Pause e Responda"
+            </button>
+            <button type="button" class="segmented-btn" data-mode="registro" id="modeBtnRegistro" title="Contabiliza apenas colunas que contenham 'Registro'">
+              📝 Somente "Registro"
+            </button>
+          </div>
+        </div>
+
+        <div class="mapping-btn-wrapper">
+          <button type="button" class="btn btn-secondary btn-sm" id="btnOpenColumnMapping" title="Verifique ou altere qual coluna do CSV corresponde ao Nome do Aluno e RA">
+            ⚙️ Mapear Colunas (Nome / RA)
+          </button>
+        </div>
+      </section>
+
+      <!-- Banner de Verificação de Colunas -->
+      <div id="columnsAlertBanner" class="columns-alert-banner" style="display: none;">
+        <div class="columns-alert-content">
+          <span id="columnsAlertIcon">💡</span>
+          <span id="columnsAlertText">Colunas identificadas automaticamente.</span>
+        </div>
+        <button type="button" class="btn btn-secondary btn-sm" id="btnChangeColumnsFromBanner" style="padding: 4px 10px; font-size: 0.78rem;">
+          Alterar Coluna
+        </button>
+      </div>
+
+      <!-- Barra de Filtros, Pesquisa e Ações de Exportação -->
+      <section class="controls-bar">
+        <div class="search-filter-group">
+          <!-- Campo de Pesquisa em Tempo Real -->
+          <div class="search-input-wrapper">
+            <i>🔍</i>
+            <input 
+              type="text" 
+              id="searchInput" 
+              class="input-text" 
+              placeholder="Buscar por Nome do Aluno ou RA..." 
+              autocomplete="off"
+            />
+          </div>
+
+          <!-- Filtro por Matéria / Turma -->
+          <select id="subjectFilter" class="select-dropdown" title="Filtrar por Turma ou Matéria">
+            <option value="all">Todas as Matérias / Turmas</option>
+          </select>
+
+          <!-- Filtro por Faixa de Nota -->
+          <select id="gradeFilter" class="select-dropdown" title="Filtrar por Situação da Nota">
+            <option value="all">Todas as Notas</option>
+            <option value="approved">Nota ≥ 6,0 (Aprovados)</option>
+            <option value="recovery">Nota &lt; 6,0 (Recuperação)</option>
+            <option value="perfect">Nota 10,0 (100% Concluído)</option>
+          </select>
+        </div>
+
+        <!-- Botões de Ação e Exportação -->
+        <div class="export-actions">
+          <button type="button" class="btn btn-primary" id="btnOpenPdfModal" title="Gerar arquivo PDF pronto para compartilhar com os alunos">
+            🎓 Gerar PDF para Alunos
+          </button>
+          <button type="button" class="btn btn-success" id="btnExportXlsx" title="Exportar tabela pronta para o Microsoft Excel">
+            📊 Baixar Excel (.xlsx)
+          </button>
+          <button type="button" class="btn btn-secondary" id="btnExportCsv" title="Exportar tabela pronta em formato CSV (UTF-8 com BOM)">
+            📄 Baixar CSV
+          </button>
+          <button type="button" class="btn btn-secondary" id="btnPrint" title="Imprimir diário de notas ou salvar em PDF pelo navegador">
+            🖨️ Imprimir
+          </button>
+          <button type="button" class="btn btn-danger btn-sm" id="clearAllBtn" title="Limpar todos os dados carregados">
+            🗑️ Limpar
+          </button>
+        </div>
+      </section>
+
+      <!-- Abas de Visualização: Padrão Oficial (Matriz), Gráfico (Página 2), e Lista Detalhada -->
+      <div class="view-tabs-nav">
+        <button type="button" class="view-tab-btn active" id="tabBtnMatrix" data-tab="matrixView">
+          📑 Relatório de Resultados (Padrão Oficial)
+        </button>
+        <button type="button" class="view-tab-btn" id="tabBtnChart" data-tab="chartView">
+          📊 Gráfico de Desempenho por Aluno (Página 2)
+        </button>
+        <button type="button" class="view-tab-btn" id="tabBtnList" data-tab="listView">
+          📋 Lista com Auditoria Individual
+        </button>
+      </div>
+
+      <!-- VISÃO 1: RELATÓRIO DE RESULTADOS NO PADRÃO OFICIAL (PÁGINA 1) -->
+      <section id="officialReportSection" class="report-official-view">
+        <div class="report-official-header">
+          <div class="report-header-center">
+            <h2 id="reportTurmaTitle">Relatório de Resultados</h2>
+            <div class="report-timestamp" id="reportLiveTimestamp"></div>
+          </div>
+        </div>
+
+        <!-- Tabela Matriz com Disciplinas / Sub-colunas (Qtd e %) -->
+        <div class="report-matrix-wrapper">
+          <table class="report-matrix-table" id="reportMatrixTable">
+            <thead id="reportMatrixThead">
+              <!-- Gerado dinamicamente com as matérias e sub-colunas Qtd e % -->
+            </thead>
+            <tbody id="reportMatrixTbody">
+              <!-- Linhas geradas dinamicamente com listras alternadas -->
+            </tbody>
+          </table>
+        </div>
+
+        <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.8rem; color: #64748b;">
+          <span>* Matriz gerada automaticamente a partir dos relatórios CSV escolares</span>
+          <span>Critério: <strong id="matrixActiveCriteriaLabel">Ambos (Pause e Responda + Registro)</strong></span>
+        </div>
+      </section>
+
+      <!-- VISÃO 2: GRÁFICO DE DESEMPENHO TOTAL POR ALUNO (PÁGINA 2) -->
+      <section id="officialChartSection" class="chart-official-view">
+        <div class="chart-title-header">
+          <h2>Desempenho Total de Atividades por Aluno</h2>
+        </div>
+
+        <div class="chart-controls-bar">
+          <div style="font-size: 0.88rem; color: var(--text-muted); font-weight: 500;">
+            Ranking de atividades concluídas por aluno (com linha de média geral da turma):
+          </div>
+          <div style="display: flex; gap: 10px; align-items: center;">
+            <span class="chart-average-badge" id="chartAverageBadge">
+              Média da Turma: -
+            </span>
+          </div>
+        </div>
+
+        <!-- Renderização do Gráfico em SVG -->
+        <div class="chart-container-svg" id="chartSvgWrapper">
+          <!-- SVG dinâmico injetado via script.js -->
+        </div>
+      </section>
+
+      <!-- VISÃO 3: TABELA DINÂMICA COM BUSCA, FILTROS E AUDITORIA -->
+      <section id="officialListSection" style="display: none;">
+        <!-- Informação de Contagem -->
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; padding: 0 4px;">
+          <span id="tableCountInfo" style="font-size: 0.82rem; color: var(--text-muted); font-weight: 500;">
+            Nenhum dado carregado ainda
+          </span>
+          <span style="font-size: 0.78rem; color: var(--text-light);">
+            * Clique nos títulos das colunas para ordenar
+          </span>
+        </div>
+
+        <!-- Tabela Dinâmica de Fechamento de Notas -->
+        <div class="card" style="padding: 0; overflow: hidden;">
+          <div id="tableEmptyState" class="empty-state">
+            <div class="empty-state-icon">📋</div>
+            <h3>Nenhum relatório carregado</h3>
+            <p>Faça upload de um ou mais arquivos CSV acima ou clique em "Carregar Dados de Exemplo" para visualizar o fechamento das notas.</p>
+          </div>
+
+          <div id="tableWrapper" class="table-responsive" style="display: none; border: none;">
+            <table class="grade-table">
+              <thead>
+                <tr>
+                  <th class="sortable sorted" data-sort="name">
+                    Nome do Aluno <span class="sort-icon">↑</span>
+                  </th>
+                  <th class="sortable" data-sort="ra">
+                    RA (Código SED) <span class="sort-icon">↕</span>
+                  </th>
+                  <th class="sortable" data-sort="subject">
+                    Matéria / Turma <span class="sort-icon">↕</span>
+                  </th>
+                  <th class="sortable" data-sort="completed">
+                    Progresso das Atividades <span class="sort-icon">↕</span>
+                  </th>
+                  <th class="sortable" data-sort="grade">
+                    Nota Final (0 a 10) <span class="sort-icon">↕</span>
+                  </th>
+                  <th>Situação</th>
+                  <th style="text-align: right;">Auditoria</th>
+                </tr>
+              </thead>
+              <tbody id="studentsTableBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- Modal de Detalhes do Aluno (Raio-X das atividades) -->
+    <div class="modal-overlay" id="studentModal" role="dialog" aria-modal="true">
+      <div class="modal-dialog">
+        <div class="modal-header">
+          <div class="modal-title">
+            <h3 id="modalStudentName">Nome do Aluno</h3>
+            <p><span id="modalStudentRA">RA</span> • <span id="modalStudentSubject">Turma</span></p>
+          </div>
+          <button class="modal-close-btn" id="modalCloseBtn" aria-label="Fechar Modal">✕</button>
+        </div>
+        <div class="modal-body">
+          <div style="margin-bottom: 16px;">
+            <span id="modalStudentGrade" class="subject-badge" style="font-size: 0.9rem; padding: 6px 14px;">
+              Nota Calculada
+            </span>
+          </div>
+          <h4 style="font-size: 0.9rem; font-weight: 700; margin-bottom: 8px; color: var(--text-main);">
+            Discriminação das Atividades:
+          </h4>
+          <div class="activities-checklist" id="modalActivitiesList">
+            <!-- Itens de atividades injetados dinamicamente -->
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" id="modalCloseFooterBtn">Fechar</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal de Mapeamento Manual de Colunas (Nome e RA) -->
+    <div class="modal-overlay" id="columnMappingModal" role="dialog" aria-modal="true">
+      <div class="modal-dialog" style="max-width: 580px;">
+        <div class="modal-header">
+          <div class="modal-title">
+            <h3>⚙️ Mapeamento de Colunas do CSV</h3>
+            <p>Selecione qual coluna do seu relatório contém o Nome do Aluno e o RA</p>
+          </div>
+          <button class="modal-close-btn" id="mappingModalCloseBtn" aria-label="Fechar Modal">✕</button>
+        </div>
+        <div class="modal-body">
+          <!-- Seletor do arquivo caso haja mais de um -->
+          <div class="mapping-form-group" id="mappingFileSelectorGroup" style="display: none;">
+            <label for="mappingFileSelect" class="mapping-form-label">Arquivo para configurar:</label>
+            <select id="mappingFileSelect" class="mapping-select"></select>
+          </div>
+
+          <!-- Seletor da Coluna de Nome -->
+          <div class="mapping-form-group">
+            <label for="mappingNameColSelect" class="mapping-form-label">
+              👤 Coluna com o Nome do Aluno:
+            </label>
+            <select id="mappingNameColSelect" class="mapping-select"></select>
+          </div>
+
+          <!-- Seletor da Coluna de RA / SED -->
+          <div class="mapping-form-group">
+            <label for="mappingRaColSelect" class="mapping-form-label">
+              🆔 Coluna com o RA / Código SED:
+            </label>
+            <select id="mappingRaColSelect" class="mapping-select"></select>
+          </div>
+
+          <!-- Prévia dos primeiros alunos -->
+          <div class="mapping-preview-box">
+            <div class="mapping-preview-title">Prévia com as colunas selecionadas:</div>
+            <table class="mapping-preview-table">
+              <thead>
+                <tr>
+                  <th>Nome do Aluno</th>
+                  <th>RA (Código SED)</th>
+                </tr>
+              </thead>
+              <tbody id="mappingPreviewTbody">
+                <!-- Linhas de prévia -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div class="modal-footer" style="gap: 10px;">
+          <button type="button" class="btn btn-secondary" id="mappingModalCancelBtn">Cancelar</button>
+          <button type="button" class="btn btn-primary" id="mappingModalSaveBtn">Salvar e Recalcular</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal de Geração de PDF para Compartilhar com Alunos -->
+    <div class="modal-overlay" id="pdfModal" role="dialog" aria-modal="true">
+      <div class="modal-dialog" style="max-width: 620px;">
+        <div class="modal-header">
+          <div class="modal-title">
+            <h3>🎓 Gerar PDF para Compartilhar com os Alunos</h3>
+            <p>Gere e baixe arquivos PDF formatados prontos para envio ou impressão</p>
+          </div>
+          <button class="modal-close-btn" id="pdfModalCloseBtn" aria-label="Fechar Modal">✕</button>
+        </div>
+        
+        <div class="modal-body">
+          <div class="pdf-modal-section-title">
+            <span>📋</span> Selecione o Modelo do Relatório:
+          </div>
+
+          <!-- Seleção do tipo de documento -->
+          <div class="pdf-type-grid">
+            <label class="pdf-type-card active" id="cardTypeOfficial">
+              <input type="radio" name="pdfDocType" value="official" checked class="pdf-type-radio" />
+              <div class="pdf-type-content">
+                <div class="pdf-type-header">
+                  <span class="pdf-type-icon">📑</span>
+                  <span class="pdf-type-badge">Padrão Oficial</span>
+                </div>
+                <div class="pdf-type-title">Relatório Completo da Turma</div>
+                <div class="pdf-type-desc">
+                  <strong>Pág. 1:</strong> Matriz com todos os alunos, disciplinas e <strong>notas de 0 a 10</strong>.<br>
+                  <strong>Pág. 2:</strong> Gráfico de desempenho com ranking e linha de média da turma.
+                </div>
+              </div>
+            </label>
+
+            <label class="pdf-type-card" id="cardTypeIndividual">
+              <input type="radio" name="pdfDocType" value="individual" class="pdf-type-radio" />
+              <div class="pdf-type-content">
+                <div class="pdf-type-header">
+                  <span class="pdf-type-icon">👤</span>
+                  <span class="pdf-type-badge individual">Privacidade LGPD</span>
+                </div>
+                <div class="pdf-type-title">Boletins Individuais (Fichas por Aluno)</div>
+                <div class="pdf-type-desc">
+                  Fichas individuais com as notas de cada disciplina, percentual e status de aprovação. Ideal para entrega aos pais ou envio privado.
+                </div>
+              </div>
+            </label>
+
+            <label class="pdf-type-card" id="cardTypeChart">
+              <input type="radio" name="pdfDocType" value="chart" class="pdf-type-radio" />
+              <div class="pdf-type-content">
+                <div class="pdf-type-header">
+                  <span class="pdf-type-icon">📊</span>
+                  <span class="pdf-type-badge chart">Gráfico</span>
+                </div>
+                <div class="pdf-type-title">Apenas Gráfico de Desempenho</div>
+                <div class="pdf-type-desc">
+                  Histograma comparativo com o total de atividades concluídas por aluno em relação à média geral da turma.
+                </div>
+              </div>
+            </label>
+          </div>
+
+          <!-- Campos de Configuração e Cabeçalho -->
+          <div class="pdf-modal-section-title" style="margin-top: 18px;">
+            <span>⚙️</span> Informações do Cabeçalho:
+          </div>
+
+          <div class="pdf-form-row">
+            <div class="mapping-form-group" style="flex: 1; margin-bottom: 10px;">
+              <label for="pdfInputTurma" class="mapping-form-label">Nome da Turma / Matéria:</label>
+              <input type="text" id="pdfInputTurma" class="mapping-select" value="" placeholder="Ex: Turma 3A" />
+            </div>
+
+            <div class="mapping-form-group" style="flex: 1; margin-bottom: 10px;">
+              <label for="pdfInputPeriodo" class="mapping-form-label">Bimestre / Período:</label>
+              <input type="text" id="pdfInputPeriodo" class="mapping-select" value="3º Bimestre" placeholder="Ex: 3º Bimestre" />
+            </div>
+          </div>
+
+          <div class="mapping-form-group" style="margin-bottom: 12px;">
+            <label for="pdfInputSchool" class="mapping-form-label">Escola / Professor(a) (Opcional):</label>
+            <input type="text" id="pdfInputSchool" class="mapping-select" value="Escola Estadual" placeholder="Ex: EE Profª Maria da Silva" />
+          </div>
+
+          <!-- Opções de Detalhes -->
+          <div class="pdf-options-box">
+            <label class="pdf-checkbox-label">
+              <input type="checkbox" id="pdfOptHighlightGrades" checked />
+              <span>Destacar notas abaixo de 6,0 em vermelho / atenção</span>
+            </label>
+            <label class="pdf-checkbox-label">
+              <input type="checkbox" id="pdfOptIncludeStats" checked />
+              <span>Incluir resumo estatístico (média geral e taxa de aprovação)</span>
+            </label>
+            <label class="pdf-checkbox-label">
+              <input type="checkbox" id="pdfOptSignatureLine" checked />
+              <span>Incluir campo para visto / assinatura docente</span>
+            </label>
+          </div>
+
+        </div>
+
+        <div class="modal-footer" style="gap: 10px; justify-content: space-between;">
+          <button type="button" class="btn btn-secondary" id="btnPdfModalClose">Cancelar</button>
+          <div style="display: flex; gap: 8px;">
+            <button type="button" class="btn btn-secondary" id="btnPrintPdfDirect" title="Abrir janela de impressão do navegador">
+              🖨️ Pré-visualizar
+            </button>
+            <button type="button" class="btn btn-primary" id="btnDownloadPdfConfirm" title="Baixar arquivo .pdf agora">
+              <span id="pdfSpinnerIcon" style="display: none;">⏳ </span>⬇️ Baixar Arquivo PDF
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Container de Notificações Toast -->
+    <div class="toast-container" id="toastContainer" aria-live="polite"></div>
+
+    <!-- Rodapé -->
+    <footer class="main-footer">
+      <p>EduGrade • Ferramenta de Apoio Docente para Fechamento de Notas • 100% processado no navegador.</p>
+    </footer>
+
+    <!-- Script Principal da Aplicação (Vanilla JS) -->
+    <script type="module" src="/script.js"></script>
+    <script>
+      // Atualiza a data para impressão caso seja acionado
+      const printDateEl = document.getElementById('printDate');
+      if (printDateEl) {
+        printDateEl.textContent = new Date().toLocaleDateString('pt-BR', { 
+          day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' 
+        });
+      }
+    </script>
+  </body>
+</html>

@@ -1,0 +1,6 @@
+{
+  "name": "Fechamento de Notas Automático",
+  "description": "Automatize o fechamento de notas escolares com base em relatórios CSV de atividades e progresso.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

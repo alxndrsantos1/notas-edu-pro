@@ -113,14 +113,52 @@ function extractSubjectFromFileName(fileName) {
   return baseName.trim();
 }
 
+function isIgnoredNonEvaluativeColumn(header) {
+  if (!header) return false;
+  const norm = normalizeString(header);
+  return (
+    norm.includes('material de aula') ||
+    norm.includes('material da aula') ||
+    norm.includes('material de apoio') ||
+    norm.includes('material didatico') ||
+    norm.includes('material')
+  );
+}
+
 function isEvaluativeColumn(header, mode = appState.activityMode) {
   if (!header) return false;
   const norm = normalizeString(header);
-  const hasPause = norm.includes('pause e responda');
+
+  // Desconsiderar explicitamente a coluna "Material de Aula" ou qualquer coluna de material
+  if (isIgnoredNonEvaluativeColumn(header)) {
+    return false;
+  }
+
+  // Não confundir colunas de RA ("Registro do Aluno", etc.) com atividade avaliativa de registro
+  if (
+    norm.includes('registro do aluno') ||
+    norm.includes('registro de aluno') ||
+    norm.includes('registro escolar') ||
+    norm.includes('registro academico') ||
+    norm.includes('registro sed')
+  ) {
+    return false;
+  }
+
+  // Identifica Pause e Responda (qualquer coluna contendo 'pause')
+  const hasPause = norm.includes('pause');
+  
+  // Identifica Registro (qualquer coluna contendo 'registro')
   const hasRegistro = norm.includes('registro');
 
-  if (mode === 'pause') return hasPause;
-  if (mode === 'registro') return hasRegistro;
+  if (mode === 'pause') {
+    return hasPause;
+  }
+  
+  if (mode === 'registro') {
+    return hasRegistro;
+  }
+
   return hasPause || hasRegistro;
 }
 
@@ -135,7 +173,7 @@ function findStudentNameColumn(headers, sampleRows = []) {
   for (const term of directTerms) {
     const found = headers.find(h => {
       const norm = normalizeString(h);
-      return norm === term || norm.startsWith(term + ' ') || norm.replace(/\s+/g, '_') === term;
+      return (norm === term || norm.startsWith(term + ' ') || norm.replace(/\s+/g, '_') === term) && !isIgnoredNonEvaluativeColumn(h);
     });
     if (found) return found;
   }
@@ -143,20 +181,28 @@ function findStudentNameColumn(headers, sampleRows = []) {
   const partialNome = headers.find(h => {
     const norm = normalizeString(h);
     if (!norm.includes('nome')) return false;
-    return !norm.includes('materia') && !norm.includes('disciplina') && !norm.includes('turma') && !norm.includes('pause') && !norm.includes('registro');
+    return (
+      !norm.includes('materia') && 
+      !norm.includes('disciplina') && 
+      !norm.includes('turma') && 
+      !norm.includes('pause') && 
+      !norm.includes('registro') &&
+      !isIgnoredNonEvaluativeColumn(h)
+    );
   });
   if (partialNome) return partialNome;
 
   if (sampleRows && sampleRows.length > 0) {
     for (const h of headers) {
       if (isEvaluativeColumn(h, 'both')) continue;
+      if (isIgnoredNonEvaluativeColumn(h)) continue;
       const values = sampleRows.map(r => cleanString(r[h])).filter(Boolean);
       const hasFullNames = values.some(v => v.includes(' ') && isNaN(Number(v)) && v.length > 4);
       if (hasFullNames) return h;
     }
   }
 
-  const firstNonEval = headers.find(h => !isEvaluativeColumn(h, 'both'));
+  const firstNonEval = headers.find(h => !isEvaluativeColumn(h, 'both') && !isIgnoredNonEvaluativeColumn(h));
   return firstNonEval || headers[0];
 }
 
@@ -171,28 +217,51 @@ function findStudentRAColumn(headers) {
   for (const term of raTerms) {
     const found = headers.find(h => {
       const norm = normalizeString(h);
-      return norm === term || norm.startsWith(term + ' ');
+      return (norm === term || norm.startsWith(term + ' ')) && !isIgnoredNonEvaluativeColumn(h);
     });
     if (found) return found;
   }
 
-  const nonEval = headers.filter(h => !isEvaluativeColumn(h, 'both'));
-  return nonEval.length > 1 ? nonEval[1] : (headers[1] || headers[0]);
+  const nonEval = headers.filter(h => !isEvaluativeColumn(h, 'both') && !isIgnoredNonEvaluativeColumn(h));
+  return nonEval.length > 1 ? nonEval[1] : (nonEval[0] || headers[1] || headers[0]);
 }
 
 function isActivityCompleted(cellValue) {
   if (cellValue === undefined || cellValue === null) return false;
   const val = normalizeString(cellValue);
-  return (
+  if (!val) return false;
+
+  // Palavras de conclusão comuns
+  if (
     val === 'concluido' ||
     val === 'concluida' ||
     val === 'feito' ||
+    val === 'feita' ||
+    val === 'realizado' ||
+    val === 'realizada' ||
+    val === 'entregue' ||
+    val === 'finalizado' ||
+    val === 'finalizada' ||
     val === 'sim' ||
+    val === 's' ||
     val === 'completed' ||
+    val === 'ok' ||
+    val === 'x' ||
     val === '1' ||
     val === '100%' ||
-    val === 'ok'
-  );
+    val === '100' ||
+    val === 'c'
+  ) {
+    return true;
+  }
+
+  // Verifica se é valor numérico positivo (ex: nota 10, nota 1, percentual)
+  const num = parseFloat(val.replace(',', '.'));
+  if (!isNaN(num) && num > 0) {
+    return true;
+  }
+
+  return false;
 }
 
 // ==============================================================================
@@ -379,7 +448,7 @@ function renderMatrixReport() {
   subjects.forEach(sub => {
     row1 += `<th colspan="2" class="subject-header">${escapeHtml(sub.name)}</th>`;
     row2 += `
-      <th class="sub-col-header sub-col-criteria" title="${subColTooltip}">${subColLabel}</th>
+      <th class="sub-col-header sub-col-criteria" title="${subColTooltip}">${subColLabel} (${sub.totalActivities} ativ.)</th>
       <th class="sub-col-header sub-col-grade" title="Nota de 0 a 10 (100% = 10,0)">Nota</th>
     `;
   });
@@ -402,15 +471,14 @@ function renderMatrixReport() {
     subjects.forEach(sub => {
       const score = st.subjectScores[sub.name] || { completed: 0, total: sub.totalActivities, percentage: 0, grade: 0 };
       
-      // Cálculo da nota de 0 a 10 (sendo 100% igual a 10,0)
+      // Cálculo da nota de 0 a 10 estritamente baseado no critério ativo
       let gradeVal = 0;
-      if (score.grade !== undefined && score.grade > 0) {
+      if (score.grade !== undefined) {
         gradeVal = score.grade;
       } else if (score.total > 0) {
         gradeVal = (score.completed / score.total) * 10;
-      } else if (score.percentage !== undefined) {
-        gradeVal = score.percentage / 10;
       }
+      gradeVal = Math.min(10, Math.max(0, gradeVal));
 
       const gradeStr = (Math.round(gradeVal * 10) / 10).toFixed(1).replace('.', ',');
 
@@ -985,7 +1053,13 @@ function populateColumnSelects() {
 
   curFile.headers.forEach(header => {
     const isEval = isEvaluativeColumn(header, 'both');
-    const label = isEval ? `${header} (Atividade)` : header;
+    const isIgnored = isIgnoredNonEvaluativeColumn(header);
+    let label = header;
+    if (isEval) {
+      label = `${header} (Atividade Avaliativa)`;
+    } else if (isIgnored) {
+      label = `${header} (Desconsiderada - Material de Aula)`;
+    }
 
     const optName = document.createElement('option');
     optName.value = header;
@@ -2292,13 +2366,12 @@ function exportMatrixToExcel() {
       subjects.forEach(sub => {
         const score = st.subjectScores[sub.name] || { completed: 0, total: sub.totalActivities, percentage: 0, grade: 0 };
         let gradeVal = 0;
-        if (score.grade !== undefined && score.grade > 0) {
+        if (score.grade !== undefined) {
           gradeVal = score.grade;
         } else if (score.total > 0) {
           gradeVal = (score.completed / score.total) * 10;
-        } else if (score.percentage !== undefined) {
-          gradeVal = score.percentage / 10;
         }
+        gradeVal = Math.min(10, Math.max(0, gradeVal));
         row.push(score.completed);
         row.push(Number((Math.round(gradeVal * 10) / 10).toFixed(1)));
       });
@@ -2347,13 +2420,12 @@ function exportMatrixToCsv() {
       subjects.forEach(sub => {
         const score = st.subjectScores[sub.name] || { completed: 0, total: sub.totalActivities, percentage: 0, grade: 0 };
         let gradeVal = 0;
-        if (score.grade !== undefined && score.grade > 0) {
+        if (score.grade !== undefined) {
           gradeVal = score.grade;
         } else if (score.total > 0) {
           gradeVal = (score.completed / score.total) * 10;
-        } else if (score.percentage !== undefined) {
-          gradeVal = score.percentage / 10;
         }
+        gradeVal = Math.min(10, Math.max(0, gradeVal));
         const gradeFormatted = (Math.round(gradeVal * 10) / 10).toFixed(1).replace('.', ',');
         row.push(score.completed);
         row.push(`"${gradeFormatted}"`);

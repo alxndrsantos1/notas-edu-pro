@@ -122,13 +122,21 @@
             <button type="button" class="btn btn-secondary" id="btnLoadDemo" title="Experimente o sistema agora mesmo com dois arquivos de exemplo">
               ✨ Carregar Dados de Exemplo
             </button>
+            <button type="button" class="btn btn-danger" id="btnDropzoneClear" style="display: none;" title="Limpar todos os arquivos carregados">
+              🗑️ Limpar Arquivos
+            </button>
           </div>
         </div>
 
         <!-- Lista de arquivos importados -->
         <div id="uploadedFilesCard" class="uploaded-files-card" style="display: none;">
-          <div class="section-title" style="font-size: 0.95rem; margin-top: 16px;">
-            <span>📑</span> Arquivos Atualmente Carregados:
+          <div class="uploaded-files-header">
+            <div class="section-title" style="font-size: 0.95rem; margin: 0;">
+              <span>📑</span> Arquivos Atualmente Carregados (<span id="uploadedFilesCount">0</span>):
+            </div>
+            <button type="button" class="btn btn-danger btn-sm" id="btnClearAllUploadedFiles" title="Remover todos os arquivos carregados de uma só vez">
+              🗑️ Limpar Todos os Arquivos
+            </button>
           </div>
           <div class="files-badge-list" id="uploadedFilesList">
             <!-- Chips injetados dinamicamente via script.js -->
@@ -208,6 +216,41 @@
         </button>
       </div>
 
+      <!-- Painel de Recorte Temporal por Semanas Letivas (Conteúdo Cobrado) -->
+      <section class="weeks-filter-card" id="weeksFilterCard" style="display: none;">
+        <div class="weeks-filter-header">
+          <div class="weeks-filter-title">
+            <span class="weeks-icon">📅</span>
+            <div>
+              <strong>Acompanhamento por Semanas Letivas (Conteúdo Cobrado até o Momento)</strong>
+              <p class="weeks-subtitle">Selecione até qual semana letiva foi ministrada para calcular notas e pendências considerando apenas o conteúdo cobrado até agora.</p>
+            </div>
+          </div>
+          <div class="weeks-selector-controls">
+            <label for="selectWeekCutoff" class="weeks-label">Cobrado até:</label>
+            <select id="selectWeekCutoff" class="select-dropdown week-cutoff-select" title="Selecione até qual semana letiva considerar no fechamento">
+              <option value="all">Todas as Semanas (Sem corte)</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Seletor em Chips / Botões de semanas ativas -->
+        <div class="weeks-chips-row">
+          <span class="weeks-chips-label">Semanas Avaliadas:</span>
+          <div class="weeks-chips-container" id="weeksChipsContainer">
+            <!-- Chips injetados dinamicamente via JS: [x] S15 [x] S16 [x] S17 [x] S18 [x] S19 [x] S20 -->
+          </div>
+          <div class="weeks-chips-actions">
+            <button type="button" class="btn btn-secondary btn-xs" id="btnSelectAllWeeks">Marcar Todas</button>
+            <button type="button" class="btn btn-secondary btn-xs" id="btnSelectUpToCurrentWeek">Até Última Ativa</button>
+          </div>
+        </div>
+
+        <div class="weeks-info-alert" id="weeksInfoAlert" style="display: none;">
+          <span id="weeksInfoAlertText"></span>
+        </div>
+      </section>
+
       <!-- Barra de Filtros, Pesquisa e Ações de Exportação -->
       <section class="controls-bar">
         <div class="search-filter-group">
@@ -242,6 +285,9 @@
           <button type="button" class="btn btn-primary" id="btnOpenPdfModal" title="Gerar arquivo PDF pronto para compartilhar com os alunos">
             🎓 Gerar PDF para Alunos
           </button>
+          <button type="button" class="btn btn-secondary" id="btnOpenCommModal" title="Central de recados e comunicação formal com os responsáveis por WhatsApp ou impresso">
+            💬 Comunicar Pais
+          </button>
           <button type="button" class="btn btn-success" id="btnExportXlsx" title="Exportar tabela pronta para o Microsoft Excel">
             📊 Baixar Excel (.xlsx)
           </button>
@@ -249,7 +295,7 @@
             📄 Baixar CSV
           </button>
           <button type="button" class="btn btn-secondary" id="btnPrint" title="Imprimir diário de notas ou salvar em PDF pelo navegador">
-            🖨️ Imprimir
+            🖨️ Imprimir A4
           </button>
           <button type="button" class="btn btn-danger btn-sm" id="clearAllBtn" title="Limpar todos os dados carregados">
             🗑️ Limpar
@@ -257,13 +303,19 @@
         </div>
       </section>
 
-      <!-- Abas de Visualização: Padrão Oficial (Matriz), Gráfico (Página 2), e Lista Detalhada -->
+      <!-- Abas de Visualização: Padrão Oficial (Matriz), Conselho de Classe, Acompanhamento por Semana, Gráfico e Auditoria -->
       <div class="view-tabs-nav">
         <button type="button" class="view-tab-btn active" id="tabBtnMatrix" data-tab="matrixView">
           📑 Relatório de Resultados (Padrão Oficial)
         </button>
+        <button type="button" class="view-tab-btn" id="tabBtnConselho" data-tab="conselhoView">
+          🏛️ Diagnóstico do Conselho de Classe
+        </button>
+        <button type="button" class="view-tab-btn" id="tabBtnWeeks" data-tab="weeksView">
+          📅 Acompanhamento por Semana
+        </button>
         <button type="button" class="view-tab-btn" id="tabBtnChart" data-tab="chartView">
-          📊 Gráfico de Desempenho por Aluno (Página 2)
+          📊 Gráfico de Desempenho por Aluno
         </button>
         <button type="button" class="view-tab-btn" id="tabBtnList" data-tab="listView">
           📋 Lista com Auditoria Individual
@@ -276,6 +328,30 @@
           <div class="report-header-center">
             <h2 id="reportTurmaTitle">Relatório de Resultados</h2>
             <div class="report-timestamp" id="reportLiveTimestamp"></div>
+          </div>
+        </div>
+
+        <!-- Barra de Configuração e Diagnóstico Rápido da Matriz -->
+        <div class="matrix-filter-bar">
+          <div class="matrix-filter-left">
+            <div class="cutoff-selector-item">
+              <label for="passingGradeCutoffSelect">🎯 Média de Corte:</label>
+              <select id="passingGradeCutoffSelect" class="cutoff-select" title="Selecione a média mínima de aprovação da escola">
+                <option value="6.0" selected>Nota 6,0 (Padrão)</option>
+                <option value="5.0">Nota 5,0</option>
+                <option value="7.0">Nota 7,0</option>
+              </select>
+            </div>
+            <button type="button" class="btn-risk-toggle" id="btnFilterRiskStudents" title="Exibir apenas alunos com nota abaixo da média de corte em alguma disciplina">
+              <span class="risk-toggle-icon">⚠️</span>
+              <span id="riskToggleLabel">Filtrar Apenas Alunos em Risco</span>
+              <span class="risk-count-badge" id="riskCountBadge">0</span>
+            </button>
+          </div>
+          <div class="matrix-filter-right">
+            <span class="matrix-summary-text" id="matrixFilterSummaryText">
+              Exibindo todos os alunos
+            </span>
           </div>
         </div>
 
@@ -297,20 +373,261 @@
         </div>
       </section>
 
-      <!-- VISÃO 2: GRÁFICO DE DESEMPENHO TOTAL POR ALUNO (PÁGINA 2) -->
-      <section id="officialChartSection" class="chart-official-view">
-        <div class="chart-title-header">
-          <h2>Desempenho Total de Atividades por Aluno</h2>
+      <!-- VISÃO: DIAGNÓSTICO E APOIO AO CONSELHO DE CLASSE -->
+      <section id="officialConselhoSection" class="conselho-official-view" style="display: none;">
+        <div class="conselho-header">
+          <div>
+            <h2 id="conselhoTurmaTitle">Diagnóstico para Conselho de Classe</h2>
+            <p class="conselho-subtitle">
+              Mapeamento de estudantes com defasagem de entregas, simulador de recuperação e recomendações pedagógicas
+            </p>
+          </div>
+          <div class="conselho-actions">
+            <button type="button" class="btn btn-secondary btn-sm" id="btnConselhoOpenCommModal" title="Gerar recados para os responsáveis dos alunos em defasagem">
+              💬 Comunicar Responsáveis
+            </button>
+            <button type="button" class="btn btn-secondary btn-sm" id="btnExportConselhoExcel" title="Exportar planilha completa de acompanhamento pedagógico">
+              📊 Exportar Dossiê (Excel)
+            </button>
+            <button type="button" class="btn btn-primary btn-sm" id="btnExportConselhoPdf" title="Exportar Ata Oficial do Conselho de Classe pronta para assinatura">
+              📑 Exportar Ata do Conselho (PDF)
+            </button>
+          </div>
         </div>
 
-        <div class="chart-controls-bar">
-          <div style="font-size: 0.88rem; color: var(--text-muted); font-weight: 500;">
-            Ranking de atividades concluídas por aluno (com linha de média geral da turma):
+        <!-- Cards de Panorama Executivo do Conselho -->
+        <div class="conselho-metrics-grid">
+          <div class="conselho-metric-card metric-total">
+            <div class="metric-top">
+              <span class="metric-label">Total de Alunos</span>
+              <span class="metric-icon">👥</span>
+            </div>
+            <div class="metric-value" id="conselhoStatTotal">0</div>
+            <div class="metric-foot">100% da turma avaliada</div>
           </div>
-          <div style="display: flex; gap: 10px; align-items: center;">
-            <span class="chart-average-badge" id="chartAverageBadge">
-              Média da Turma: -
+
+          <div class="conselho-metric-card metric-approved">
+            <div class="metric-top">
+              <span class="metric-label">Sem Pendências</span>
+              <span class="metric-icon">✅</span>
+            </div>
+            <div class="metric-value" id="conselhoStatApproved">0</div>
+            <div class="metric-foot" id="conselhoStatApprovedPct">Aprovados em todas as matérias</div>
+          </div>
+
+          <div class="conselho-metric-card metric-warning">
+            <div class="metric-top">
+              <span class="metric-label">Recuperação Moderada</span>
+              <span class="metric-icon">⚠️</span>
+            </div>
+            <div class="metric-value" id="conselhoStatModerate">0</div>
+            <div class="metric-foot">1 ou 2 disciplinas abaixo do corte</div>
+          </div>
+
+          <div class="conselho-metric-card metric-critical">
+            <div class="metric-top">
+              <span class="metric-label">Alerta Crítico</span>
+              <span class="metric-icon">🚨</span>
+            </div>
+            <div class="metric-value" id="conselhoStatCritical">0</div>
+            <div class="metric-foot">3 ou mais disciplinas em risco</div>
+          </div>
+        </div>
+
+        <!-- Simulador de Atividades Restantes para Aprovação -->
+        <div class="conselho-simulator-box">
+          <div class="simulator-header">
+            <h3>🧮 Simulador de Atividades Restantes para Aprovação</h3>
+            <span class="simulator-badge">Cálculo em Tempo Real</span>
+          </div>
+          <div class="simulator-controls">
+            <div class="sim-group">
+              <label for="simStudentSelect">Selecionar Aluno para Simular:</label>
+              <select id="simStudentSelect" class="select-dropdown">
+                <option value="">Carregue uma turma primeiro</option>
+              </select>
+            </div>
+            <div class="sim-group">
+              <label for="simSubjectSelect">Disciplina / Matéria:</label>
+              <select id="simSubjectSelect" class="select-dropdown">
+                <option value="">Selecione um aluno primeiro</option>
+              </select>
+            </div>
+            <div class="sim-group sim-range-group">
+              <label for="simExtraActivitiesRange">Atividades Adicionais Realizadas: <strong id="simExtraActivitiesLabel">+0</strong></label>
+              <input type="range" id="simExtraActivitiesRange" min="0" max="10" value="0" step="1" class="sim-slider" />
+            </div>
+          </div>
+          <div class="simulator-result" id="simResultContainer">
+            <!-- Injetado dinamicamente com a nota projetada -->
+            <div class="sim-result-placeholder">Selecione um estudante e disciplina acima para simular a recuperação de nota.</div>
+          </div>
+        </div>
+
+        <!-- Tabela Dossiê de Casos de Risco do Conselho -->
+        <div class="card conselho-table-card">
+          <div class="conselho-table-header">
+            <h3>📋 Lista Nominal de Acompanhamento e Encaminhamentos</h3>
+            <div style="font-size: 0.82rem; color: var(--text-muted);">
+              Critério de Risco: <strong id="conselhoCriteriaNotice">Nota &lt; 6,0</strong>
+            </div>
+          </div>
+          <div class="table-responsive">
+            <table class="conselho-table">
+              <thead>
+                <tr>
+                  <th style="width: 44px; text-align: center;">#</th>
+                  <th>Nome do Aluno</th>
+                  <th>Status no Conselho</th>
+                  <th>Disciplinas com Defasagem</th>
+                  <th>Simulador: Atividades Faltantes para Aprovação</th>
+                  <th>Encaminhamento Pedagógico Recomendado</th>
+                  <th style="width: 130px; text-align: center;">Ações</th>
+                </tr>
+              </thead>
+              <tbody id="conselhoTableBody">
+                <!-- Linhas dos alunos em defasagem -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- VISÃO 2.5: ACOMPANHAMENTO SEMANAL (QUEM FEZ CADA SEMANA) -->
+      <section id="officialWeeksSection" class="weeks-official-view" style="display: none;">
+        <div class="conselho-header">
+          <div>
+            <h2 class="conselho-title" style="display: flex; align-items: center; gap: 8px;">
+              <span>📅</span> Acompanhamento de Conclusão por Semana Letiva
+            </h2>
+            <p class="conselho-subtitle">
+              Monitore nominalmente quem concluiu cada semana letiva (ex: Semana 18, 19, 20), identifique quem parou de entregar e copie a lista de pendências com um clique.
+            </p>
+          </div>
+          <div class="conselho-actions">
+            <button type="button" class="btn btn-secondary btn-sm" id="btnExportWeeksExcel" title="Exportar tabela de acompanhamento semanal para o Excel">
+              📊 Exportar Semanas (Excel)
+            </button>
+            <button type="button" class="btn btn-primary btn-sm" id="btnCopyPendingWeekList" title="Copiar lista de alunos com pendência na semana selecionada para avisar no grupo">
+              📋 Copiar Alunos Atrasados
+            </button>
+          </div>
+        </div>
+
+        <!-- Panorama por Semana (Cards de Conclusão da Turma em cada Semana) -->
+        <div class="weeks-summary-cards" id="weeksSummaryCards">
+          <!-- Preenchido via JS com cards de cada semana e % de entrega da turma -->
+        </div>
+
+        <!-- Barra de Filtros Específicos da Visão Semanal -->
+        <div class="matrix-filter-bar">
+          <div class="matrix-filter-left" style="flex-wrap: wrap; gap: 10px;">
+            <div class="cutoff-selector-item">
+              <label for="weeksStatusFilterSelect">🔎 Filtrar Alunos:</label>
+              <select id="weeksStatusFilterSelect" class="cutoff-select">
+                <option value="all">Todos os Alunos</option>
+                <!-- Opções dinâmicas das semanas detectadas -->
+              </select>
+            </div>
+            <div class="cutoff-selector-item" id="weeksFocusItem">
+              <label for="weeksFocusSelect">🎯 Semana em Destaque:</label>
+              <select id="weeksFocusSelect" class="cutoff-select">
+                <!-- Opções dinâmicas das semanas detectadas -->
+              </select>
+            </div>
+          </div>
+          <div class="matrix-filter-right">
+            <span class="matrix-legend-chip">
+              <span class="matrix-legend-dot" style="background:#16a34a;"></span> 100% Concluído
             </span>
+            <span class="matrix-legend-chip">
+              <span class="matrix-legend-dot" style="background:#d97706;"></span> Parcial
+            </span>
+            <span class="matrix-legend-chip">
+              <span class="matrix-legend-dot" style="background:#dc2626;"></span> Não Iniciado (0%)
+            </span>
+          </div>
+        </div>
+
+        <!-- Tabela Nominal de Semanas -->
+        <div class="table-responsive" style="margin-top: 14px;">
+          <table class="report-matrix-table weeks-matrix-table" id="weeksMatrixTable">
+            <thead id="weeksMatrixThead">
+              <!-- Cabeçalho dinâmico com colunas de cada semana -->
+            </thead>
+            <tbody id="weeksMatrixTbody">
+              <!-- Linhas com alunos e badges de cada semana -->
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- VISÃO 2: GRÁFICO DE DESEMPENHO E DIAGNÓSTICO (PÁGINA 2) -->
+      <section id="officialChartSection" class="chart-official-view">
+        <div class="chart-title-header">
+          <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 12px; width: 100%;">
+            <div>
+              <h2 id="chartMainTitle">Painel Gráfico de Desempenho Escolar</h2>
+              <p style="font-size: 0.84rem; color: var(--text-muted); margin-top: 4px;">
+                Visualização pedagógica interativa com ranking, médias e faixas de aproveitamento
+              </p>
+            </div>
+            <div style="display: flex; gap: 10px; align-items: center;">
+              <span class="chart-average-badge" id="chartAverageBadge">
+                Média da Turma: -
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Seletor de Estilos de Gráfico e Controles de Ordenação -->
+        <div class="chart-header-actions">
+          <div class="chart-type-selector" role="tablist" aria-label="Tipos de Gráfico">
+            <button type="button" class="chart-type-btn active" data-chart-type="horizontal" id="chartTypeHorizontal" title="Barras horizontais com nomes fáceis de ler e cores por nível de aproveitamento">
+              📊 Ranking Horizontal (Fácil Leitura)
+            </button>
+            <button type="button" class="chart-type-btn" data-chart-type="distribution" id="chartTypeDistribution" title="Visão de conselho de classe: Distribuição por faixas de notas e situações">
+              🎯 Faixas de Aproveitamento
+            </button>
+            <button type="button" class="chart-type-btn" data-chart-type="subjects" id="chartTypeSubjects" title="Comparação de engajamento entre as disciplinas cadastradas">
+              📚 Comparativo por Disciplina
+            </button>
+            <button type="button" class="chart-type-btn" data-chart-type="columns" id="chartTypeColumns" title="Gráfico clássico em colunas verticais com linha de média">
+              📈 Colunas com Média
+            </button>
+          </div>
+
+          <div class="chart-controls-group" id="chartSortContainer">
+            <label for="chartSortSelect" class="chart-control-label">Ordenar:</label>
+            <select id="chartSortSelect" class="select-dropdown chart-sort-select">
+              <option value="desc">Maior Desempenho (Topo)</option>
+              <option value="asc">Menor Desempenho (Topo)</option>
+              <option value="alpha">Ordem Alfabética (A - Z)</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Legenda Pedagógica das Cores -->
+        <div class="chart-legend" id="chartSemanticLegend">
+          <div class="chart-legend-item">
+            <span class="legend-bullet" style="background-color: #10b981;"></span>
+            <span>Alto Desempenho (Nota ≥ 8,0)</span>
+          </div>
+          <div class="chart-legend-item">
+            <span class="legend-bullet" style="background-color: #3b82f6;"></span>
+            <span>Adequado (6,0 a 7,9)</span>
+          </div>
+          <div class="chart-legend-item">
+            <span class="legend-bullet" style="background-color: #f59e0b;"></span>
+            <span>Atenção (4,0 a 5,9)</span>
+          </div>
+          <div class="chart-legend-item">
+            <span class="legend-bullet" style="background-color: #ef4444;"></span>
+            <span>Crítico / Baixo (&lt; 4,0)</span>
+          </div>
+          <div class="chart-legend-item">
+            <span class="legend-bullet dashed" style="background-color: #dc2626;"></span>
+            <span>Média da Turma</span>
           </div>
         </div>
 
@@ -570,6 +887,94 @@
           </div>
         </div>
       </div>
+    </div>
+
+    <!-- MODAL 4: CENTRAL DE COMUNICAÇÃO COM PAIS E ALUNOS (WHATSAPP, E-MAIL E BILHETE IMPRESSO) -->
+    <div class="modal-overlay" id="commModalOverlay" style="display: none;">
+      <div class="modal-container comm-modal-container">
+        <div class="modal-header">
+          <div class="modal-header-icon" style="background: #e0f2fe; color: #0284c7;">💬</div>
+          <div>
+            <h2 class="modal-title">Central de Comunicação com Pais e Alunos</h2>
+            <p class="modal-subtitle">Gere recados prontos para WhatsApp, E-mail ou Bilhete Impresso com canhoto de assinatura para a agenda.</p>
+          </div>
+          <button type="button" class="modal-close-btn" id="btnCommModalCloseX">&times;</button>
+        </div>
+
+        <div class="modal-body comm-modal-body">
+          <!-- Linha Superior: Seleção do Aluno e Modelo de Recado -->
+          <div class="comm-grid-top">
+            <div class="mapping-form-group">
+              <label for="commStudentSelect" class="mapping-form-label">👤 Selecionar Aluno(a):</label>
+              <select id="commStudentSelect" class="mapping-select">
+                <!-- Populado dinamicamente via JS -->
+              </select>
+            </div>
+
+            <div class="mapping-form-group">
+              <label for="commTemplateSelect" class="mapping-form-label">📝 Modelo de Recado / Comunicado:</label>
+              <select id="commTemplateSelect" class="mapping-select">
+                <option value="recovery">⚠️ Alerta de Atividades Pendentes e Recuperação</option>
+                <option value="praise">🌟 Elogio e Reconhecimento de Bom Desempenho</option>
+                <option value="meeting">📅 Convocação para Reunião de Pais / Conselho</option>
+                <option value="complete">📊 Boletim Resumido Completo (Todas as Matérias)</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Campos de Configuração e Personalização do Recado -->
+          <div class="comm-config-grid">
+            <div class="mapping-form-group">
+              <label for="commInputParentName" class="mapping-form-label">Tratamento aos Pais:</label>
+              <input type="text" id="commInputParentName" class="mapping-select" value="Srs. Pais ou Responsáveis" placeholder="Ex: Srs. Pais ou Responsáveis" />
+            </div>
+
+            <div class="mapping-form-group">
+              <label for="commInputTeacherName" class="mapping-form-label">Professor(a) / Remetente:</label>
+              <input type="text" id="commInputTeacherName" class="mapping-select" value="Coordenação Pedagógica / Professor(a)" placeholder="Seu nome ou cargo" />
+            </div>
+
+            <div class="mapping-form-group">
+              <label for="commInputDeadline" class="mapping-form-label">Prazo p/ Entregas (Opcional):</label>
+              <input type="text" id="commInputDeadline" class="mapping-select" value="próxima sexta-feira" placeholder="Ex: até 30/09" />
+            </div>
+
+            <div class="mapping-form-group">
+              <label for="commInputPhone" class="mapping-form-label">📱 Telefone WhatsApp (Opcional):</label>
+              <input type="tel" id="commInputPhone" class="mapping-select" placeholder="Ex: 11987654321" />
+            </div>
+          </div>
+
+          <!-- Prévia da Mensagem para WhatsApp / Texto -->
+          <div class="comm-preview-container">
+            <div class="comm-preview-header">
+              <span class="comm-preview-title">📱 Prévia da Mensagem (Formato WhatsApp / Texto):</span>
+              <span class="comm-badge" id="commCharCountBadge">Pronto para envio</span>
+            </div>
+            <textarea id="commMessageTextarea" class="comm-textarea" rows="9" spellcheck="false"></textarea>
+          </div>
+        </div>
+
+        <div class="modal-footer" style="justify-content: space-between; flex-wrap: wrap; gap: 10px;">
+          <button type="button" class="btn btn-secondary" id="btnCommModalClose">Fechar</button>
+          <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+            <button type="button" class="btn btn-secondary" id="btnCommPrintSlip" title="Imprimir bilhete formal para colar no caderno ou enviar na agenda com canhoto de confirmação">
+              🖨️ Imprimir Bilhete Escolar
+            </button>
+            <button type="button" class="btn btn-secondary" id="btnCommCopyMessage" title="Copiar texto pronto para colar no WhatsApp ou enviar por e-mail">
+              📋 Copiar Mensagem
+            </button>
+            <button type="button" class="btn btn-success" id="btnCommSendWhatsApp" title="Abrir o WhatsApp com a mensagem pronta">
+              📱 Abrir no WhatsApp
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Área de Impressão Exclusiva do Bilhete Escolar com Canhoto de Devolução -->
+    <div id="printSlipOnlyContainer" class="print-slip-only-container" style="display: none;">
+      <!-- Preenchido dinamicamente antes de acionar a impressão -->
     </div>
 
     <!-- Container de Notificações Toast -->

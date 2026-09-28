@@ -375,6 +375,16 @@ body {
   margin-top: 20px;
 }
 
+.uploaded-files-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border-color);
+}
+
 .files-badge-list {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
@@ -1043,58 +1053,104 @@ body {
 }
 
 /* ==========================================================================
-   Estilos de Impressão (@media print)
+   Estilos de Impressão Profissional (@media print)
    ========================================================================== */
 @media print {
-  body {
-    background: white;
-    color: black;
+  @page {
+    margin: 8mm;
+    size: auto;
   }
 
+  body {
+    background: #ffffff !important;
+    color: #000000 !important;
+    font-size: 9pt;
+  }
+
+  /* Oculta tudo que é interface de interação ou navegação */
   .main-header,
   .dropzone,
+  .uploaded-files-card,
+  .activity-mode-section,
   .instructions-grid,
   .controls-bar,
+  .view-tabs-nav,
+  .matrix-filter-bar,
+  .chart-header-actions,
+  .chart-controls-group,
+  .chart-type-selector,
+  .chart-legend,
   .main-footer,
   .btn,
   .file-remove-btn,
   .modal-overlay,
-  .toast-container {
+  .toast-container,
+  .conselho-actions,
+  .conselho-simulator-box,
+  .btn-comm-action {
     display: none !important;
   }
 
   .app-container {
-    padding: 0;
-    max-width: 100%;
+    padding: 0 !important;
+    max-width: 100% !important;
+    margin: 0 !important;
   }
 
-  .card {
-    border: none;
-    box-shadow: none;
-    padding: 0;
+  .card, 
+  .report-official-view, 
+  .conselho-official-view, 
+  .chart-official-view {
+    border: none !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    background: #ffffff !important;
   }
 
-  .print-header-only {
-    display: block !important;
-    margin-bottom: 20px;
-    border-bottom: 2px solid #000;
-    padding-bottom: 10px;
+  .report-matrix-wrapper {
+    overflow: visible !important;
+    border: none !important;
   }
 
-  .table-responsive {
-    border: none;
-    box-shadow: none;
-    overflow: visible;
-  }
-
+  .report-matrix-table, 
+  .conselho-table, 
   .grade-table {
-    font-size: 10pt;
+    width: 100% !important;
+    font-size: 7.5pt !important;
+    page-break-inside: auto;
   }
 
-  .grade-table th, 
-  .grade-table td {
-    padding: 6px 8px;
-    border-bottom: 1px solid #ddd;
+  .report-matrix-table tr, 
+  .conselho-table tr {
+    page-break-inside: avoid;
+    page-break-after: auto;
+  }
+
+  .report-matrix-table thead, 
+  .conselho-table thead {
+    display: table-header-group;
+  }
+
+  .report-matrix-table th, 
+  .report-matrix-table td,
+  .conselho-table th, 
+  .conselho-table td {
+    padding: 3px 5px !important;
+    border: 0.5pt solid #cbd5e1 !important;
+  }
+
+  .report-official-header h2 {
+    font-size: 13pt !important;
+  }
+
+  /* Modo de Impressão Exclusivo: Bilhete Escolar para a Agenda dos Pais */
+  body.printing-comm-slip > :not(#printSlipOnlyContainer) {
+    display: none !important;
+  }
+
+  body.printing-comm-slip #printSlipOnlyContainer {
+    display: block !important;
   }
 }
 
@@ -1282,14 +1338,117 @@ body {
 }
 
 .chart-title-header {
-  text-align: center;
-  margin-bottom: 24px;
+  margin-bottom: 18px;
 }
 
 .chart-title-header h2 {
   font-size: 1.35rem;
   font-weight: 800;
   color: #0f172a;
+}
+
+.chart-header-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  background-color: #f8fafc;
+  padding: 12px 16px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-color);
+  margin-bottom: 14px;
+}
+
+.chart-type-selector {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.chart-type-btn {
+  background: #ffffff;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  padding: 7px 12px;
+  font-family: inherit;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--secondary);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.15s ease;
+}
+
+.chart-type-btn:hover {
+  background-color: #f1f5f9;
+  color: var(--text-main);
+  border-color: #94a3b8;
+}
+
+.chart-type-btn.active {
+  background-color: var(--primary);
+  color: #ffffff;
+  border-color: var(--primary);
+  box-shadow: 0 2px 4px rgba(37, 99, 235, 0.25);
+}
+
+.chart-controls-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.chart-control-label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.chart-sort-select {
+  padding: 6px 10px;
+  font-size: 0.8rem;
+  border-radius: var(--radius-sm);
+}
+
+.chart-legend {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+  padding: 8px 12px;
+  margin-bottom: 16px;
+  background-color: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: var(--radius-sm);
+  font-size: 0.78rem;
+  color: #475569;
+}
+
+.chart-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 500;
+}
+
+.legend-bullet {
+  width: 12px;
+  height: 12px;
+  border-radius: 3px;
+  display: inline-block;
+  flex-shrink: 0;
+}
+
+.legend-bullet.dashed {
+  height: 3px;
+  border-top: 2px dashed #dc2626;
+  background-color: transparent !important;
+  width: 16px;
+  border-radius: 0;
 }
 
 .chart-controls-bar {
@@ -1747,6 +1906,435 @@ body {
   cursor: pointer;
 }
 
+/* Barra de Configuração e Diagnóstico Rápido da Matriz */
+.matrix-filter-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  background-color: #f8fafc;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 10px 16px;
+  margin-bottom: 16px;
+}
+
+.matrix-filter-left {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 14px;
+}
+
+.cutoff-selector-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--text-main);
+}
+
+.cutoff-select {
+  padding: 6px 10px;
+  font-size: 0.8rem;
+  font-family: inherit;
+  font-weight: 600;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  background-color: #ffffff;
+  color: #1e293b;
+  cursor: pointer;
+}
+
+.cutoff-select:focus {
+  outline: 2px solid var(--primary);
+  outline-offset: 1px;
+}
+
+.btn-risk-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  font-family: inherit;
+  background-color: #ffffff;
+  color: #475569;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.btn-risk-toggle:hover {
+  background-color: #f1f5f9;
+  color: #0f172a;
+  border-color: #94a3b8;
+}
+
+.btn-risk-toggle.active {
+  background-color: #fee2e2;
+  color: #991b1b;
+  border-color: #ef4444;
+  box-shadow: 0 1px 3px rgba(239, 68, 68, 0.2);
+}
+
+.risk-count-badge {
+  background-color: #ef4444;
+  color: #ffffff;
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 1px 6px;
+  border-radius: 999px;
+  display: inline-block;
+  line-height: 1.3;
+}
+
+.matrix-summary-text {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+/* ==========================================================================
+   Visão: Conselho de Classe e Apoio Pedagógico
+   ========================================================================== */
+.conselho-official-view {
+  background: #ffffff;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-color);
+  padding: 32px 28px;
+  margin-bottom: 24px;
+  box-shadow: var(--shadow-md);
+}
+
+.conselho-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid var(--border-color);
+  margin-bottom: 24px;
+}
+
+.conselho-header h2 {
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: #0f172a;
+  margin: 0;
+}
+
+.conselho-subtitle {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  margin-top: 4px;
+}
+
+.conselho-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+/* Grid de Métricas do Conselho */
+.conselho-metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.conselho-metric-card {
+  background: #ffffff;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 18px 20px;
+  border-left: 4px solid #cbd5e1;
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  flex-direction: column;
+}
+
+.conselho-metric-card.metric-total {
+  border-left-color: #3b82f6;
+}
+
+.conselho-metric-card.metric-approved {
+  border-left-color: #10b981;
+}
+
+.conselho-metric-card.metric-warning {
+  border-left-color: #f59e0b;
+}
+
+.conselho-metric-card.metric-critical {
+  border-left-color: #ef4444;
+}
+
+.metric-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.metric-label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.metric-icon {
+  font-size: 1.1rem;
+}
+
+.conselho-metric-card .metric-value {
+  font-size: 1.85rem;
+  font-weight: 800;
+  color: #0f172a;
+  line-height: 1.1;
+  margin-bottom: 6px;
+}
+
+.metric-foot {
+  font-size: 0.76rem;
+  color: var(--text-muted);
+}
+
+/* Simulador de Atividades Restantes */
+.conselho-simulator-box {
+  background: #f8fafc;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 20px 24px;
+  margin-bottom: 24px;
+}
+
+.simulator-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.simulator-header h3 {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #1e293b;
+  margin: 0;
+}
+
+.simulator-badge {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: #1d4ed8;
+  background-color: #dbeafe;
+  padding: 3px 8px;
+  border-radius: 4px;
+}
+
+.simulator-controls {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.sim-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.sim-group label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #334155;
+}
+
+.sim-range-group .sim-slider {
+  accent-color: var(--primary);
+  cursor: pointer;
+  height: 6px;
+  margin-top: 8px;
+}
+
+.simulator-result {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: var(--radius-sm);
+  padding: 16px 20px;
+}
+
+.sim-result-placeholder {
+  color: #64748b;
+  font-size: 0.85rem;
+  text-align: center;
+  padding: 12px 0;
+}
+
+.sim-result-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.sim-current-stat,
+.sim-projected-stat {
+  display: flex;
+  flex-direction: column;
+}
+
+.sim-stat-label {
+  font-size: 0.75rem;
+  color: #64748b;
+  text-transform: uppercase;
+  font-weight: 600;
+}
+
+.sim-stat-val {
+  font-size: 1.4rem;
+  font-weight: 800;
+}
+
+.sim-stat-val.low {
+  color: #dc2626;
+}
+
+.sim-stat-val.approved {
+  color: #059669;
+}
+
+.sim-arrow {
+  font-size: 1.4rem;
+  color: #94a3b8;
+}
+
+.sim-verdict {
+  padding: 8px 14px;
+  border-radius: var(--radius-sm);
+  font-size: 0.84rem;
+  font-weight: 600;
+}
+
+.sim-verdict.pass {
+  background-color: #dcfce7;
+  color: #166534;
+}
+
+.sim-verdict.need-more {
+  background-color: #fee2e2;
+  color: #991b1b;
+}
+
+/* Tabela do Conselho de Classe */
+.conselho-table-card {
+  padding: 0;
+  overflow: hidden;
+  border: 1px solid var(--border-color);
+}
+
+.conselho-table-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border-color);
+  background-color: #f8fafc;
+}
+
+.conselho-table-header h3 {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0;
+}
+
+.conselho-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.84rem;
+}
+
+.conselho-table th {
+  background-color: #f1f5f9;
+  color: #334155;
+  font-weight: 700;
+  text-align: left;
+  padding: 12px 14px;
+  border-bottom: 2px solid var(--border-color);
+  white-space: nowrap;
+}
+
+.conselho-table td {
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--border-color);
+  color: #1e293b;
+  vertical-align: middle;
+}
+
+.conselho-table tr:hover {
+  background-color: #f8fafc;
+}
+
+.risk-level-tag {
+  display: inline-block;
+  padding: 3px 8px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  border-radius: 4px;
+}
+
+.risk-level-tag.critical {
+  background-color: #fee2e2;
+  color: #991b1b;
+}
+
+.risk-level-tag.warning {
+  background-color: #fef3c7;
+  color: #92400e;
+}
+
+.risk-level-tag.clean {
+  background-color: #dcfce7;
+  color: #166534;
+}
+
+.missing-act-item {
+  display: inline-block;
+  font-size: 0.78rem;
+  padding: 2px 6px;
+  background-color: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  border-radius: 4px;
+  margin: 2px 4px 2px 0;
+  color: #1e293b;
+}
+
+.missing-act-item strong {
+  color: #dc2626;
+}
+
+.pedagogical-action {
+  font-size: 0.78rem;
+  color: #475569;
+  font-weight: 500;
+}
+
 /* Responsividade Mobile */
 @media (max-width: 768px) {
   .app-container {
@@ -1776,4 +2364,475 @@ body {
   .export-actions .btn {
     flex: 1;
   }
+
+  .conselho-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .conselho-actions {
+    width: 100%;
+  }
+
+  .conselho-actions .btn {
+    flex: 1;
+  }
 }
+
+/* ==========================================================================
+   Central de Comunicação com Pais e Alunos (WhatsApp e Bilhete)
+   ========================================================================== */
+.comm-modal-container {
+  max-width: 780px;
+}
+
+.comm-grid-top {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 16px;
+  margin-bottom: 14px;
+}
+
+.comm-config-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 12px;
+  margin-bottom: 16px;
+  background-color: #f8fafc;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 12px 16px;
+}
+
+.comm-preview-container {
+  background: #ffffff;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.comm-preview-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px;
+  background-color: #f1f5f9;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.comm-preview-title {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #334155;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+
+.comm-badge {
+  font-size: 0.72rem;
+  font-weight: 600;
+  background-color: #dcfce7;
+  color: #166534;
+  padding: 2px 8px;
+  border-radius: 999px;
+}
+
+.comm-textarea {
+  width: 100%;
+  border: none;
+  padding: 14px 16px;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, monospace, sans-serif;
+  font-size: 0.88rem;
+  line-height: 1.55;
+  color: #1e293b;
+  background: #ffffff;
+  resize: vertical;
+  min-height: 160px;
+  outline: none;
+  box-sizing: border-box;
+}
+
+.comm-textarea:focus {
+  background-color: #fafbfc;
+}
+
+/* Botão de ação nas tabelas */
+.btn-comm-action {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px;
+  font-size: 0.76rem;
+  font-weight: 600;
+  color: #0284c7;
+  background-color: #f0f9ff;
+  border: 1px solid #bae6fd;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+}
+
+.btn-comm-action:hover {
+  background-color: #0284c7;
+  color: #ffffff;
+  border-color: #0284c7;
+}
+
+/* ==========================================================================
+   Formatação do Bilhete Escolar Impresso com Canhoto
+   ========================================================================== */
+.print-slip-only-container {
+  display: none;
+}
+
+@media print {
+  .print-slip-box {
+    border: 2px solid #0f172a;
+    border-radius: 4px;
+    padding: 20px;
+    margin: 10px auto;
+    max-width: 720px;
+    font-family: system-ui, -apple-system, sans-serif;
+    color: #000;
+  }
+
+  .print-slip-header {
+    text-align: center;
+    border-bottom: 2px solid #0f172a;
+    padding-bottom: 12px;
+    margin-bottom: 14px;
+  }
+
+  .print-slip-school {
+    font-size: 13pt;
+    font-weight: 800;
+    text-transform: uppercase;
+  }
+
+  .print-slip-title {
+    font-size: 11pt;
+    font-weight: 700;
+    margin-top: 4px;
+  }
+
+  .print-slip-student-info {
+    display: flex;
+    justify-content: space-between;
+    background: #f1f5f9;
+    padding: 8px 12px;
+    border: 1px solid #cbd5e1;
+    font-size: 9pt;
+    margin-bottom: 14px;
+  }
+
+  .print-slip-body {
+    font-size: 9.5pt;
+    line-height: 1.5;
+    margin-bottom: 18px;
+    white-space: pre-wrap;
+  }
+
+  .print-slip-signatures {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 24px;
+    padding-top: 10px;
+  }
+
+  .print-slip-sign-line {
+    border-top: 1px solid #000;
+    width: 220px;
+    text-align: center;
+    font-size: 8pt;
+    padding-top: 4px;
+  }
+
+  /* Canhoto Destacável de Devolução aos Pais */
+  .print-slip-divider {
+    border: none;
+    border-top: 2px dashed #64748b;
+    margin: 24px 0 16px 0;
+    position: relative;
+    text-align: center;
+  }
+
+  .print-slip-divider-label {
+    display: inline-block;
+    position: relative;
+    top: -10px;
+    background: #ffffff;
+    padding: 0 10px;
+    font-size: 8pt;
+    color: #475569;
+    font-weight: bold;
+  }
+
+  .print-slip-receipt {
+    border: 1px solid #94a3b8;
+    padding: 12px;
+    background: #f8fafc;
+    font-size: 8.5pt;
+  }
+
+  .print-slip-receipt-title {
+    font-weight: bold;
+    text-align: center;
+    margin-bottom: 8px;
+    text-transform: uppercase;
+  }
+
+  .print-slip-receipt-fields {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 16px;
+    padding-top: 14px;
+  }
+}
+
+/* ==========================================================================
+   Painel de Recorte e Acompanhamento por Semanas Letivas
+   ========================================================================== */
+.weeks-filter-card {
+  background: linear-gradient(135deg, #ffffff 0%, #f0fdf4 100%);
+  border: 1.5px solid #bbf7d0;
+  border-radius: var(--radius-lg);
+  padding: 16px 20px;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 8px rgba(34, 197, 94, 0.08);
+}
+
+.weeks-filter-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 14px;
+}
+
+.weeks-filter-title {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.weeks-icon {
+  font-size: 1.5rem;
+  background: #dcfce7;
+  color: #166534;
+  width: 42px;
+  height: 42px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-md);
+  flex-shrink: 0;
+}
+
+.weeks-subtitle {
+  font-size: 0.8rem;
+  color: #475569;
+  margin-top: 2px;
+}
+
+.weeks-selector-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.weeks-label {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #166534;
+  white-space: nowrap;
+}
+
+.week-cutoff-select {
+  border-color: #86efac;
+  background-color: #ffffff;
+  font-weight: 700;
+  color: #14532d;
+  cursor: pointer;
+}
+
+.week-cutoff-select:focus {
+  border-color: #22c55e;
+  box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.2);
+}
+
+.weeks-chips-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px dashed #bbf7d0;
+}
+
+.weeks-chips-label {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #334155;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.weeks-chips-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.week-chip-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 0.76rem;
+  font-weight: 600;
+  border: 1px solid #cbd5e1;
+  background: #ffffff;
+  color: #475569;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.week-chip-btn:hover {
+  background: #f1f5f9;
+  border-color: #94a3b8;
+}
+
+.week-chip-btn.active {
+  background: #16a34a;
+  border-color: #15803d;
+  color: #ffffff;
+  box-shadow: 0 1px 3px rgba(22, 163, 74, 0.3);
+}
+
+.week-chip-btn.excluded {
+  background: #f8fafc;
+  color: #94a3b8;
+  border-style: dashed;
+  opacity: 0.65;
+}
+
+.weeks-chips-actions {
+  display: flex;
+  gap: 6px;
+  margin-left: auto;
+}
+
+.btn-xs {
+  padding: 3px 8px;
+  font-size: 0.72rem;
+  border-radius: var(--radius-sm);
+}
+
+.weeks-info-alert {
+  margin-top: 10px;
+  background: #ecfdf5;
+  border: 1px solid #a7f3d0;
+  color: #065f46;
+  padding: 6px 12px;
+  border-radius: var(--radius-sm);
+  font-size: 0.78rem;
+  font-weight: 500;
+}
+
+/* ==========================================================================
+   Visão Oficial de Acompanhamento por Semana
+   ========================================================================== */
+.weeks-official-view {
+  background: #ffffff;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-color);
+  padding: 28px 24px;
+  margin-bottom: 24px;
+  box-shadow: var(--shadow-md);
+}
+
+.weeks-summary-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.week-card {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: var(--radius-md);
+  padding: 12px;
+  text-align: center;
+  transition: all 0.2s ease;
+}
+
+.week-card.active-focus {
+  border-color: #3b82f6;
+  background: #eff6ff;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+}
+
+.week-card-title {
+  font-size: 0.8rem;
+  font-weight: 800;
+  color: #1e293b;
+  text-transform: uppercase;
+}
+
+.week-card-pct {
+  font-size: 1.25rem;
+  font-weight: 800;
+  margin: 4px 0;
+}
+
+.week-card-pct.high { color: #16a34a; }
+.week-card-pct.medium { color: #d97706; }
+.week-card-pct.low { color: #dc2626; }
+
+.week-card-sub {
+  font-size: 0.72rem;
+  color: #64748b;
+}
+
+/* Células de status por semana na tabela */
+.badge-week-status {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 3px 8px;
+  border-radius: 999px;
+  font-size: 0.74rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.badge-week-status.done {
+  background-color: #dcfce7;
+  color: #15803d;
+  border: 1px solid #bbf7d0;
+}
+
+.badge-week-status.partial {
+  background-color: #fef3c7;
+  color: #b45309;
+  border: 1px solid #fde68a;
+}
+
+.badge-week-status.missing {
+  background-color: #fee2e2;
+  color: #b91c1c;
+  border: 1px solid #fecaca;
+}
+
+.badge-week-status.future {
+  background-color: #f1f5f9;
+  color: #94a3b8;
+  border: 1px dashed #cbd5e1;
+}
+

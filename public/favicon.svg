@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <defs>
+    <linearGradient id="gradBg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#3b82f6" />
+      <stop offset="100%" stop-color="#1d4ed8" />
+    </linearGradient>
+    <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fde047" />
+      <stop offset="100%" stop-color="#eab308" />
+    </linearGradient>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="125%">
+      <feDropShadow dx="0" dy="2" stdDeviation="2" flood-color="#0f172a" flood-opacity="0.25"/>
+    </filter>
+  </defs>
+
+  <!-- Fundo com cantos arredondados -->
+  <rect x="2" y="2" width="60" height="60" rx="15" fill="url(#gradBg)" />
+
+  <!-- Detalhe decorativo sutil de brilho superior -->
+  <path d="M 6 17 C 6 8.5 12 4 20 4 L 44 4 C 52 4 58 8.5 58 17 C 58 20 46 25 32 25 C 18 25 6 20 6 17 Z" fill="#ffffff" opacity="0.12" />
+
+  <!-- Capelo / Chapéu de Formatura Acadêmico -->
+  <g filter="url(#shadow)">
+    <!-- Base inferior do capelo -->
+    <path d="M 21 30.5 L 21 40 C 21 45.5 43 45.5 43 40 L 43 30.5 C 39.5 33 24.5 33 21 30.5 Z" fill="#e2e8f0" />
+    <path d="M 23 32 L 23 39.5 C 23 43.5 41 43.5 41 39.5 L 41 32 C 37 34 27 34 23 32 Z" fill="#ffffff" />
+
+    <!-- Losango superior do capelo -->
+    <polygon points="32,15 54,25.5 32,36 10,25.5" fill="#ffffff" stroke="#e0e7ff" stroke-width="0.5" />
+    <polygon points="32,17.5 50.5,25.5 32,33.5 13.5,25.5" fill="#f8fafc" />
+
+    <!-- Botão central -->
+    <circle cx="32" cy="25.5" r="2.2" fill="url(#goldGrad)" />
+
+    <!-- Cordão e Pingente Dourado (Tassel) -->
+    <path d="M 32 25.5 Q 43 27 47 33 L 47 43" fill="none" stroke="url(#goldGrad)" stroke-width="2.2" stroke-linecap="round" />
+    <circle cx="47" cy="44.5" r="2" fill="url(#goldGrad)" />
+    <!-- Franjas do pingente -->
+    <path d="M 45.5 45.5 L 45 49 M 47 46 L 47 50 M 48.5 45.5 L 49 49" stroke="url(#goldGrad)" stroke-width="1.2" stroke-linecap="round" />
+
+    <!-- Estrela ou Distintivo de Nota 10 / Excelência -->
+    <circle cx="21" cy="45" r="5.5" fill="#10b981" stroke="#ffffff" stroke-width="1.5" />
+    <!-- Checkmark de Aprovação -->
+    <path d="M 18.5 45 L 20.2 46.8 L 23.8 43.2" fill="none" stroke="#ffffff" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" />
+  </g>
+</svg>

@@ -274,8 +274,8 @@
           <!-- Filtro por Faixa de Nota -->
           <select id="gradeFilter" class="select-dropdown" title="Filtrar por Situação da Nota">
             <option value="all">Todas as Notas</option>
-            <option value="approved">Nota ≥ 6,0 (Aprovados)</option>
-            <option value="recovery">Nota &lt; 6,0 (Recuperação)</option>
+            <option value="approved">Nota ≥ 5,0 (Aprovados)</option>
+            <option value="recovery">Nota &lt; 5,0 (Recuperação)</option>
             <option value="perfect">Nota 10,0 (100% Concluído)</option>
           </select>
         </div>
@@ -285,14 +285,11 @@
           <button type="button" class="btn btn-primary" id="btnOpenPdfModal" title="Gerar arquivo PDF pronto para compartilhar com os alunos">
             🎓 Gerar PDF para Alunos
           </button>
-          <button type="button" class="btn btn-secondary" id="btnOpenCommModal" title="Central de recados e comunicação formal com os responsáveis por WhatsApp ou impresso">
-            💬 Comunicar Pais
-          </button>
           <button type="button" class="btn btn-success" id="btnExportXlsx" title="Exportar tabela pronta para o Microsoft Excel">
             📊 Baixar Excel (.xlsx)
           </button>
-          <button type="button" class="btn btn-secondary" id="btnExportCsv" title="Exportar tabela pronta em formato CSV (UTF-8 com BOM)">
-            📄 Baixar CSV
+          <button type="button" class="btn btn-secondary" id="btnDownloadPdf" title="Baixar relatório de notas da turma direto em arquivo PDF">
+            📑 Baixar PDF
           </button>
           <button type="button" class="btn btn-secondary" id="btnPrint" title="Imprimir diário de notas ou salvar em PDF pelo navegador">
             🖨️ Imprimir A4
@@ -337,8 +334,8 @@
             <div class="cutoff-selector-item">
               <label for="passingGradeCutoffSelect">🎯 Média de Corte:</label>
               <select id="passingGradeCutoffSelect" class="cutoff-select" title="Selecione a média mínima de aprovação da escola">
-                <option value="6.0" selected>Nota 6,0 (Padrão)</option>
-                <option value="5.0">Nota 5,0</option>
+                <option value="5.0" selected>Nota 5,0 (Padrão)</option>
+                <option value="6.0">Nota 6,0</option>
                 <option value="7.0">Nota 7,0</option>
               </select>
             </div>

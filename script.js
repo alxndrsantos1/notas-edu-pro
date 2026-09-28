@@ -28,8 +28,8 @@ const appState = {
   activityMode: 'both',
   // Aba de visualização ativa: 'matrixView' | 'conselhoView' | 'chartView' | 'listView'
   activeTab: 'matrixView',
-  // Média de corte mínima para aprovação (padrão 6.0)
-  passingGradeCutoff: 6.0,
+  // Média de corte mínima para aprovação (padrão 5.0)
+  passingGradeCutoff: 5.0,
   // Filtro na matriz para exibir somente alunos em risco
   filterOnlyRisk: false,
   // Estado do simulador do Conselho de Classe
@@ -593,7 +593,7 @@ function renderMatrixReport() {
   thead.innerHTML = row1 + row2;
 
   // Lógica de Diagnóstico e Risco na Matriz
-  const cutoff = appState.passingGradeCutoff || 6.0;
+  const cutoff = appState.passingGradeCutoff !== undefined ? appState.passingGradeCutoff : 5.0;
 
   // Identifica alunos com pelo menos uma disciplina abaixo da média de corte
   let riskStudentsCount = 0;
@@ -920,18 +920,23 @@ function renderHorizontalBarChart(students, subjects, averageActivities, contain
  * ESTILO 2: DISTRIBUIÇÃO PEDAGÓGICA (Conselho de Classe: Donut + Cards das Faixas)
  */
 function renderDistributionChart(students, subjects, averageActivities, container) {
+  const cutoff = appState.passingGradeCutoff !== undefined ? appState.passingGradeCutoff : 5.0;
+  const cutoffStr = cutoff.toFixed(1).replace('.', ',');
+
   const groups = {
     excelencia: { title: 'Destaque / Excelência', range: '≥ 8,0', color: '#10b981', dark: '#059669', lightBg: '#dcfce7', icon: '🌟', students: [] },
-    adequado: { title: 'Adequado / Aprovados', range: '6,0 a 7,9', color: '#3b82f6', dark: '#1d4ed8', lightBg: '#dbeafe', icon: '🟢', students: [] },
-    atencao: { title: 'Atenção / Recuperação', range: '4,0 a 5,9', color: '#f59e0b', dark: '#b45309', lightBg: '#fef3c7', icon: '🟡', students: [] },
-    critico: { title: 'Crítico / Defasagem', range: '< 4,0', color: '#ef4444', dark: '#b91c1c', lightBg: '#fee2e2', icon: '🔴', students: [] }
+    adequado: { title: 'Adequado / Aprovados', range: `${cutoffStr} a 7,9`, color: '#3b82f6', dark: '#1d4ed8', lightBg: '#dbeafe', icon: '🟢', students: [] },
+    atencao: { title: 'Atenção / Recuperação', range: `${(cutoff - 1.0 > 0 ? (cutoff - 1.0).toFixed(1).replace('.', ',') : '0,0')} a ${(cutoff - 0.1).toFixed(1).replace('.', ',')}`, color: '#f59e0b', dark: '#b45309', lightBg: '#fef3c7', icon: '🟡', students: [] },
+    critico: { title: 'Crítico / Defasagem', range: `< ${(cutoff - 1.0 > 0 ? (cutoff - 1.0).toFixed(1).replace('.', ',') : cutoffStr)}`, color: '#ef4444', dark: '#b91c1c', lightBg: '#fee2e2', icon: '🔴', students: [] }
   };
+
+  const attentionThreshold = Math.max(0, cutoff - 1.0);
 
   students.forEach(st => {
     const grade = getStudentAvgGrade(st, subjects);
     if (grade >= 8.0) groups.excelencia.students.push({ ...st, grade });
-    else if (grade >= 6.0) groups.adequado.students.push({ ...st, grade });
-    else if (grade >= 4.0) groups.atencao.students.push({ ...st, grade });
+    else if (grade >= cutoff) groups.adequado.students.push({ ...st, grade });
+    else if (grade >= attentionThreshold) groups.atencao.students.push({ ...st, grade });
     else groups.critico.students.push({ ...st, grade });
   });
 
@@ -1600,8 +1605,7 @@ function updateWeeksFilterUI() {
       <option value="all">Todas as Semanas (${weeks[0]} a ${weeks[weeks.length - 1]})</option>
       ${weeks.map(w => {
         const isUpTo = w === appState.weekFilter.upToWeek;
-        const note = w === 18 ? ' (Cobrado até o momento)' : '';
-        return `<option value="${w}" ${isUpTo ? 'selected' : ''}>Até a Semana ${w}${note}</option>`;
+        return `<option value="${w}" ${isUpTo ? 'selected' : ''}>Até a Semana ${w}</option>`;
       }).join('')}
     `;
     selectCutoff.value = currentVal || 'all';
@@ -2540,7 +2544,7 @@ function initMatrixRiskControls() {
 
   if (cutoffSelect) {
     cutoffSelect.addEventListener('change', (e) => {
-      appState.passingGradeCutoff = parseFloat(e.target.value) || 6.0;
+      appState.passingGradeCutoff = parseFloat(e.target.value) || 5.0;
       renderMatrixReport();
       renderConselhoDeClasseView();
       renderPerformanceChart();
@@ -2569,7 +2573,7 @@ function initMatrixRiskControls() {
 // ==============================================================================
 function renderConselhoDeClasseView() {
   const { turmaName, subjects, students } = appState.matrixData;
-  const cutoff = appState.passingGradeCutoff || 6.0;
+  const cutoff = appState.passingGradeCutoff !== undefined ? appState.passingGradeCutoff : 5.0;
 
   const turmaTitle = document.getElementById('conselhoTurmaTitle');
   if (turmaTitle) {
@@ -2776,7 +2780,7 @@ function updateSimulatorSubjectSelect() {
     return;
   }
 
-  const cutoff = appState.passingGradeCutoff || 6.0;
+  const cutoff = appState.passingGradeCutoff !== undefined ? appState.passingGradeCutoff : 5.0;
 
   // Prioriza matérias onde o aluno está abaixo do corte
   const sortedSubs = [...subjects].sort((a, b) => {
@@ -2825,7 +2829,7 @@ function updateSimulatorResult() {
     return;
   }
 
-  const cutoff = appState.passingGradeCutoff || 6.0;
+  const cutoff = appState.passingGradeCutoff !== undefined ? appState.passingGradeCutoff : 5.0;
   const sc = student.subjectScores ? student.subjectScores[subject.name] : { completed: 0, total: subject.totalActivities };
   const currentCompleted = sc ? sc.completed : 0;
   const totalActivities = (sc && sc.total > 0) ? sc.total : (subject.totalActivities || 1);
@@ -3721,10 +3725,12 @@ function getFilteredAndSortedStudents() {
     list = list.filter(student => student.subject === appState.filters.selectedSubject);
   }
 
+  const cutoff = appState.passingGradeCutoff !== undefined ? appState.passingGradeCutoff : 5.0;
+
   if (appState.filters.gradeStatus === 'approved') {
-    list = list.filter(student => student.grade >= 6.0);
+    list = list.filter(student => student.grade >= cutoff);
   } else if (appState.filters.gradeStatus === 'recovery') {
-    list = list.filter(student => student.grade < 6.0);
+    list = list.filter(student => student.grade < cutoff);
   } else if (appState.filters.gradeStatus === 'perfect') {
     list = list.filter(student => student.grade === 10.0);
   }
@@ -3761,7 +3767,8 @@ function updateDashboardMetrics() {
     return;
   }
 
-  const approvedCount = students.filter(s => s.overallGrade >= 6.0).length;
+  const cutoff = appState.passingGradeCutoff !== undefined ? appState.passingGradeCutoff : 5.0;
+  const approvedCount = students.filter(s => s.overallGrade >= cutoff).length;
   const rate = Math.round((approvedCount / total) * 100);
 
   if (totalStudentsEl) totalStudentsEl.textContent = total.toString();
@@ -3804,12 +3811,14 @@ function renderTableRows() {
     let statusLabel = 'Aprovado';
     let statusPillClass = 'status-approved';
 
-    if (student.grade < 5.0) {
+    const cutoff = appState.passingGradeCutoff !== undefined ? appState.passingGradeCutoff : 5.0;
+
+    if (student.grade < cutoff) {
       gradeBadgeClass = 'grade-low';
       progressBarClass = 'low';
       statusLabel = 'Abaixo da Média';
       statusPillClass = 'status-critical';
-    } else if (student.grade < 6.0) {
+    } else if (student.grade < cutoff + 1.0) {
       gradeBadgeClass = 'grade-medium';
       progressBarClass = 'medium';
       statusLabel = 'Em Atenção';
@@ -3935,12 +3944,14 @@ function initExportButtons() {
   const btnOpenPdfModal = document.getElementById('btnOpenPdfModal');
   const btnOpenCommModal = document.getElementById('btnOpenCommModal');
   const btnExportXlsx = document.getElementById('btnExportXlsx');
+  const btnDownloadPdf = document.getElementById('btnDownloadPdf') || document.getElementById('btnExportCsv');
   const btnExportCsv = document.getElementById('btnExportCsv');
   const btnPrint = document.getElementById('btnPrint');
 
   if (btnOpenPdfModal) btnOpenPdfModal.addEventListener('click', () => openPdfModal());
   if (btnOpenCommModal) btnOpenCommModal.addEventListener('click', () => openCommunicationModal());
   if (btnExportXlsx) btnExportXlsx.addEventListener('click', () => exportMatrixToExcel());
+  if (btnDownloadPdf) btnDownloadPdf.addEventListener('click', () => downloadDirectPdf());
   if (btnExportCsv) btnExportCsv.addEventListener('click', () => exportMatrixToCsv());
   if (btnPrint) {
     btnPrint.addEventListener('click', () => {
@@ -3954,6 +3965,40 @@ function initExportButtons() {
       }
       setTimeout(() => window.print(), 100);
     });
+  }
+}
+
+/**
+ * Faz o download direto do relatório oficial em PDF (1 clique).
+ */
+async function downloadDirectPdf() {
+  const { students, turmaName } = appState.matrixData;
+  if (!students || students.length === 0) {
+    showToast('Nenhum dado carregado para gerar PDF.', 'error');
+    return;
+  }
+
+  showToast('Gerando e baixando PDF oficial da turma... Aguarde.', 'info');
+
+  try {
+    if (typeof window.jspdf === 'undefined' || !window.jspdf.jsPDF) {
+      throw new Error('Biblioteca jsPDF não encontrada no navegador.');
+    }
+
+    await generateOfficialClassPdf({
+      turma: turmaName || 'Turma',
+      periodo: 'Fechamento de Notas',
+      school: 'Escola Estadual',
+      highlightGrades: true,
+      includeStats: true,
+      signatureLine: true
+    });
+
+    showToast('PDF baixado com sucesso!', 'success');
+  } catch (err) {
+    console.error('Erro na geração direta do PDF:', err);
+    showToast('Erro ao gerar PDF direto. Abrindo janela de impressão alternativa.', 'warning');
+    setTimeout(() => window.print(), 300);
   }
 }
 
@@ -4259,7 +4304,8 @@ async function generateOfficialClassPdf(options) {
 
       row.push({ content: String(score.completed), styles: { halign: 'center' } });
 
-      const isLow = highlightGrades && gradeVal < 6.0;
+      const cutoff = appState.passingGradeCutoff !== undefined ? appState.passingGradeCutoff : 5.0;
+      const isLow = highlightGrades && gradeVal < cutoff;
       row.push({
         content: gradeStr,
         styles: {
@@ -4567,14 +4613,15 @@ async function generateIndividualReportCardsPdf(options) {
       sumGrades += gradeVal;
 
       const pct = Math.round((comp / tot) * 100);
-      const isLow = highlightGrades && gradeVal < 6.0;
+      const cutoff = appState.passingGradeCutoff !== undefined ? appState.passingGradeCutoff : 5.0;
+      const isLow = highlightGrades && gradeVal < cutoff;
 
       let statusText = 'Aprovado';
       let statusTextColor = [5, 150, 105];
-      if (gradeVal < 5.0) {
+      if (gradeVal < cutoff) {
         statusText = 'Abaixo da Média';
         statusTextColor = [220, 38, 38];
-      } else if (gradeVal < 6.0) {
+      } else if (gradeVal < cutoff + 1.0) {
         statusText = 'Em Atenção';
         statusTextColor = [217, 119, 6];
       }

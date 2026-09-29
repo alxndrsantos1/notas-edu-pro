@@ -43,14 +43,7 @@
           <div class="brand-icon">📊</div>
           <div class="brand-text">
             <h1>EduGrade</h1>
-            <p>Fechamento Automático de Notas a partir de Relatórios CSV</p>
           </div>
-        </div>
-
-        <div class="header-badges">
-          <span class="privacy-badge" title="Seus arquivos são processados exclusivamente na memória do seu navegador. Nenhum dado de aluno é enviado para a internet.">
-            🛡️ 100% Offline no Navegador (Privacidade LGPD)
-          </span>
         </div>
       </div>
     </header>
@@ -64,163 +57,87 @@
     <!-- Conteúdo Principal -->
     <main class="app-container">
       
-      <!-- Guia Rápido de Instruções -->
-      <section class="card">
-        <div class="section-title">
-          <span>💡</span> Como Funciona o Fechamento de Notas
-        </div>
-        <p class="section-subtitle">
-          Basta carregar os relatórios de progresso exportados pelo sistema escolar. O cálculo é feito instantaneamente.
-        </p>
+      <!-- VISÃO INICIAL: APENAS A OPÇÃO DE CARREGAR O ARQUIVO (MINIMALISTA) -->
+      <section id="initialUploadView" class="minimal-upload-hero">
+        <div class="minimal-hero-card">
+          <div class="minimal-hero-header">
+            <div class="minimal-icon-badge">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                <polyline points="17 8 12 3 7 8"/>
+                <line x1="12" y1="3" x2="12" y2="15"/>
+              </svg>
+            </div>
+            <h2 class="minimal-hero-title">Carregar Relatório de Notas</h2>
+          </div>
 
-        <div class="instructions-grid">
-          <div class="step-card">
-            <div class="step-number">1</div>
-            <div class="step-info">
-              <h4>Identificação da Matéria</h4>
-              <p>O nome da turma/disciplina é extraído automaticamente do nome do arquivo (ex: <code>Logica3B.csv</code>).</p>
+          <div class="minimal-dropzone dropzone" id="dropzone">
+            <div class="dropzone-inner">
+              <div class="dropzone-icon">
+                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                  <polyline points="14 2 14 8 20 8"></polyline>
+                  <line x1="12" y1="18" x2="12" y2="12"></line>
+                  <line x1="9" y1="15" x2="15" y2="15"></line>
+                </svg>
+              </div>
+              
+              <div class="dropzone-actions">
+                <input type="file" id="fileInput" class="file-input-hidden" accept=".csv, text/csv, application/vnd.ms-excel" multiple />
+                <button type="button" class="btn btn-primary btn-upload-main" onclick="document.getElementById('fileInput').click()">
+                  📂 Selecionar Arquivo CSV
+                </button>
+              </div>
             </div>
           </div>
 
-          <div class="step-card">
-            <div class="step-number">2</div>
-            <div class="step-info">
-              <h4>Detecção de Atividades</h4>
-              <p>Filtra todas as colunas com <strong>"Pause e Responda"</strong> ou <strong>"Registro"</strong> no cabeçalho.</p>
-            </div>
-          </div>
-
-          <div class="step-card">
-            <div class="step-number">3</div>
-            <div class="step-info">
-              <h4>Cálculo Proporcional</h4>
-              <p>Conta as atividades com status <strong>"Concluído"</strong> e calcula a nota proporcional de <strong>0,0 a 10,0</strong>.</p>
-            </div>
-          </div>
-
-          <div class="step-card">
-            <div class="step-number">4</div>
-            <div class="step-info">
-              <h4>Exportação Imediata</h4>
-              <p>Baixe a planilha pronta e formatada em <strong>Excel (.xlsx)</strong> ou <strong>CSV</strong> com 1 clique.</p>
+          <div class="minimal-hero-footer">
+            <button type="button" class="btn-demo-link" id="btnLoadDemo" title="Experimente o sistema imediatamente com a turma de exemplo">
+              ✨ Ou testar com dados de exemplo da Turma 3A
+            </button>
+            <div class="minimal-privacy-note">
+              <span>🔒 Processamento seguro 100% no navegador • Privacidade e conformidade LGPD</span>
             </div>
           </div>
         </div>
       </section>
 
-      <!-- Área de Upload Drag and Drop -->
-      <section class="card">
-        <div class="dropzone" id="dropzone">
-          <div class="dropzone-icon">📁</div>
-          <div class="dropzone-text">
-            <h3>Arraste e solte seus relatórios CSV aqui</h3>
-            <p>
-              Você pode enviar múltiplos arquivos de uma só vez (ex: turmas ou matérias diferentes).
-              Formatos suportados: <strong>.csv</strong> com codificação UTF-8 ou Latin1.
-            </p>
+      <!-- VISÃO DO PAINEL / DASHBOARD (EXIBIDO APÓS O CARREGAMENTO DO ARQUIVO) -->
+      <div id="dashboardView" class="dashboard-view" style="display: none;">
+        
+        <!-- Barra de Topo do Dashboard com Resumo do Arquivo e Ações Rápidas -->
+        <div class="dashboard-topbar">
+          <div class="dashboard-file-info">
+            <span class="status-indicator-dot"></span>
+            <div class="file-status-text">
+              <strong id="dashboardActiveFilesTitle">Relatório Carregado</strong>
+              <span id="dashboardActiveFilesSub">Visualizando gráficos de desempenho da turma</span>
+            </div>
           </div>
-
-          <div class="dropzone-actions">
-            <input type="file" id="fileInput" class="file-input-hidden" accept=".csv, text/csv, application/vnd.ms-excel" multiple />
-            <button type="button" class="btn btn-primary" onclick="document.getElementById('fileInput').click()">
-              📂 Selecionar Arquivo(s) CSV
+          <div class="dashboard-topbar-actions">
+            <button type="button" class="btn btn-secondary btn-sm" id="btnUploadAnother" onclick="document.getElementById('fileInput').click()" title="Carregar outro relatório CSV">
+              📂 Carregar Outro Arquivo
             </button>
-            <button type="button" class="btn btn-secondary" id="btnLoadDemo" title="Experimente o sistema agora mesmo com dois arquivos de exemplo">
-              ✨ Carregar Dados de Exemplo
-            </button>
-            <button type="button" class="btn btn-danger" id="btnDropzoneClear" style="display: none;" title="Limpar todos os arquivos carregados">
-              🗑️ Limpar Arquivos
+            <button type="button" class="btn btn-danger btn-sm" id="btnDropzoneClear" title="Limpar e voltar à tela inicial">
+              🗑️ Trocar Arquivo / Limpar
             </button>
           </div>
         </div>
 
-        <!-- Lista de arquivos importados -->
+        <!-- Lista compacta de arquivos carregados (se múltiplos) -->
         <div id="uploadedFilesCard" class="uploaded-files-card" style="display: none;">
           <div class="uploaded-files-header">
-            <div class="section-title" style="font-size: 0.95rem; margin: 0;">
-              <span>📑</span> Arquivos Atualmente Carregados (<span id="uploadedFilesCount">0</span>):
+            <div class="section-title" style="font-size: 0.88rem; margin: 0;">
+              <span>📑</span> Arquivos Ativos (<span id="uploadedFilesCount">0</span>):
             </div>
-            <button type="button" class="btn btn-danger btn-sm" id="btnClearAllUploadedFiles" title="Remover todos os arquivos carregados de uma só vez">
-              🗑️ Limpar Todos os Arquivos
+            <button type="button" class="btn btn-secondary btn-xs" id="btnClearAllUploadedFiles">
+              Limpar Todos
             </button>
           </div>
           <div class="files-badge-list" id="uploadedFilesList">
             <!-- Chips injetados dinamicamente via script.js -->
           </div>
         </div>
-      </section>
-
-      <!-- Painel de Métricas / Estatísticas do Fechamento -->
-      <section class="stats-grid">
-        <div class="stat-box">
-          <div class="stat-icon blue">👥</div>
-          <div>
-            <div class="stat-value" id="statTotalStudents">0</div>
-            <div class="stat-label">Total de Alunos</div>
-          </div>
-        </div>
-
-        <div class="stat-box">
-          <div class="stat-icon purple">📚</div>
-          <div>
-            <div class="stat-value" id="statTotalClasses">0</div>
-            <div class="stat-label">Turmas / Matérias</div>
-          </div>
-        </div>
-
-        <div class="stat-box">
-          <div class="stat-icon amber">🎯</div>
-          <div>
-            <div class="stat-value" id="statAvgGrade">0,0</div>
-            <div class="stat-label">Média Geral de Notas</div>
-          </div>
-        </div>
-
-        <div class="stat-box">
-          <div class="stat-icon green">📈</div>
-          <div>
-            <div class="stat-value" id="statApprovalRate">0%</div>
-            <div class="stat-label">Aproveitamento (Nota ≥ 6.0)</div>
-          </div>
-        </div>
-      </section>
-
-      <!-- Painel de Seleção de Critério de Atividades e Mapeamento de Colunas -->
-      <section class="calculation-mode-card">
-        <div class="mode-selector-wrapper">
-          <span class="mode-selector-label">
-            <span>🎯</span> Atividades para Nota:
-          </span>
-          <div class="segmented-control" role="group" aria-label="Modalidade de Atividades para Nota">
-            <button type="button" class="segmented-btn active" data-mode="both" id="modeBtnBoth" title="Contabiliza tanto Pause e Responda quanto Registro">
-              ✨ Ambos (Pause e Responda + Registro)
-            </button>
-            <button type="button" class="segmented-btn" data-mode="pause" id="modeBtnPause" title="Contabiliza apenas colunas que contenham 'Pause e Responda'">
-              ⏸️ Somente "Pause e Responda"
-            </button>
-            <button type="button" class="segmented-btn" data-mode="registro" id="modeBtnRegistro" title="Contabiliza apenas colunas que contenham 'Registro'">
-              📝 Somente "Registro"
-            </button>
-          </div>
-        </div>
-
-        <div class="mapping-btn-wrapper">
-          <button type="button" class="btn btn-secondary btn-sm" id="btnOpenColumnMapping" title="Verifique ou altere qual coluna do CSV corresponde ao Nome do Aluno e RA">
-            ⚙️ Mapear Colunas (Nome / RA)
-          </button>
-        </div>
-      </section>
-
-      <!-- Banner de Verificação de Colunas -->
-      <div id="columnsAlertBanner" class="columns-alert-banner" style="display: none;">
-        <div class="columns-alert-content">
-          <span id="columnsAlertIcon">💡</span>
-          <span id="columnsAlertText">Colunas identificadas automaticamente.</span>
-        </div>
-        <button type="button" class="btn btn-secondary btn-sm" id="btnChangeColumnsFromBanner" style="padding: 4px 10px; font-size: 0.78rem;">
-          Alterar Coluna
-        </button>
-      </div>
 
       <!-- Painel de Recorte Temporal por Semanas Letivas (Conteúdo Cobrado) -->
       <section class="weeks-filter-card" id="weeksFilterCard" style="display: none;">
@@ -248,7 +165,6 @@
           </div>
           <div class="weeks-chips-actions">
             <button type="button" class="btn btn-secondary btn-xs" id="btnSelectAllWeeks">Marcar Todas</button>
-            <button type="button" class="btn btn-secondary btn-xs" id="btnSelectUpToCurrentWeek">Até Última Ativa</button>
           </div>
         </div>
 
@@ -306,19 +222,19 @@
         </div>
       </section>
 
-      <!-- Abas de Visualização: Padrão Oficial (Matriz), Conselho de Classe, Acompanhamento por Semana, Gráfico e Auditoria -->
+      <!-- Abas de Visualização Minimalistas -->
       <div class="view-tabs-nav">
         <button type="button" class="view-tab-btn active" id="tabBtnMatrix" data-tab="matrixView">
-          📑 Relatório de Resultados (Padrão Oficial)
+          📑 Relatório Oficial (Matriz)
+        </button>
+        <button type="button" class="view-tab-btn" id="tabBtnChart" data-tab="chartView">
+          📊 Gráficos de Desempenho
         </button>
         <button type="button" class="view-tab-btn" id="tabBtnConselho" data-tab="conselhoView">
-          🏛️ Diagnóstico do Conselho de Classe
+          🏛️ Conselho de Classe
         </button>
         <button type="button" class="view-tab-btn" id="tabBtnWeeks" data-tab="weeksView">
           📅 Acompanhamento por Semana
-        </button>
-        <button type="button" class="view-tab-btn" id="tabBtnChart" data-tab="chartView">
-          📊 Gráfico de Desempenho por Aluno
         </button>
         <button type="button" class="view-tab-btn" id="tabBtnList" data-tab="listView">
           📋 Lista com Auditoria Individual
@@ -337,21 +253,40 @@
         <!-- Barra de Configuração e Diagnóstico Rápido da Matriz -->
         <div class="matrix-filter-bar">
           <div class="matrix-filter-left">
+            <div class="matrix-filter-group-item">
+              <span class="matrix-filter-label">Atividades:</span>
+              <div class="segmented-control" role="group" aria-label="Modalidade de Atividades para Nota">
+                <button type="button" class="segmented-btn active" data-mode="both" id="modeBtnBoth" title="Contabiliza tanto Pause e Responda quanto Registro">
+                  ✨ Ambos
+                </button>
+                <button type="button" class="segmented-btn" data-mode="pause" id="modeBtnPause" title="Contabiliza apenas colunas que contenham 'Pause e Responda'">
+                  ⏸️ Pause e Responda
+                </button>
+                <button type="button" class="segmented-btn" data-mode="registro" id="modeBtnRegistro" title="Contabiliza apenas colunas que contenham 'Registro'">
+                  📝 Registro
+                </button>
+              </div>
+            </div>
+
             <div class="cutoff-selector-item">
-              <label for="passingGradeCutoffSelect">🎯 Média de Corte:</label>
+              <label for="passingGradeCutoffSelect">🎯 Corte:</label>
               <select id="passingGradeCutoffSelect" class="cutoff-select" title="Selecione a média mínima de aprovação da escola">
-                <option value="5.0" selected>Nota 5,0 (Padrão)</option>
+                <option value="5.0" selected>Nota 5,0</option>
                 <option value="6.0">Nota 6,0</option>
                 <option value="7.0">Nota 7,0</option>
               </select>
             </div>
+
             <button type="button" class="btn-risk-toggle" id="btnFilterRiskStudents" title="Exibir apenas alunos com nota abaixo da média de corte em alguma disciplina">
               <span class="risk-toggle-icon">⚠️</span>
-              <span id="riskToggleLabel">Filtrar Apenas Alunos em Risco</span>
+              <span id="riskToggleLabel">Alunos em Risco</span>
               <span class="risk-count-badge" id="riskCountBadge">0</span>
             </button>
           </div>
           <div class="matrix-filter-right">
+            <button type="button" class="btn btn-secondary btn-xs" id="btnOpenColumnMapping" title="Verifique ou altere qual coluna do CSV corresponde ao Nome do Aluno e RA">
+              ⚙️ Mapear Colunas
+            </button>
             <span class="matrix-summary-text" id="matrixFilterSummaryText">
               Exibindo todos os alunos
             </span>
@@ -566,7 +501,7 @@
       </section>
 
       <!-- VISÃO 2: GRÁFICO DE DESEMPENHO E DIAGNÓSTICO (PÁGINA 2) -->
-      <section id="officialChartSection" class="chart-official-view">
+      <section id="officialChartSection" class="chart-official-view" style="display: none;">
         <div class="chart-title-header">
           <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 12px; width: 100%;">
             <div>
@@ -688,6 +623,8 @@
           </div>
         </div>
       </section>
+
+      </div><!-- Fim do #dashboardView -->
 
     </main>
 

@@ -1164,6 +1164,7 @@ body {
   padding: 32px 28px;
   margin-bottom: 24px;
   box-shadow: var(--shadow-md);
+  scroll-margin-top: 75px;
 }
 
 .report-official-header {
@@ -1487,43 +1488,48 @@ body {
 }
 
 /* ==========================================================================
-   Abas de Visualização (Tabs)
+   Abas de Visualização (Tabs Minimalistas)
    ========================================================================== */
 .view-tabs-nav {
   display: flex;
-  gap: 8px;
+  gap: 4px;
+  background: #f1f5f9;
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 4px;
   margin-bottom: 20px;
-  border-bottom: 1px solid var(--border-color);
-  padding-bottom: 10px;
-  flex-wrap: wrap;
+  overflow-x: auto;
+  scrollbar-width: thin;
+  scroll-margin-top: 75px;
 }
 
 .view-tab-btn {
-  background: var(--surface);
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-md);
+  background: transparent;
+  border: none;
+  border-radius: 8px;
   padding: 9px 16px;
   font-family: inherit;
-  font-size: 0.86rem;
-  font-weight: 600;
-  color: var(--secondary);
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--text-muted);
   cursor: pointer;
   display: flex;
   align-items: center;
   gap: 8px;
-  transition: all 0.2s ease;
+  white-space: nowrap;
+  transition: all 0.15s ease;
 }
 
 .view-tab-btn:hover {
-  background-color: var(--secondary-light);
   color: var(--text-main);
+  background-color: rgba(255, 255, 255, 0.6);
 }
 
 .view-tab-btn.active {
-  background-color: var(--primary);
-  color: #ffffff;
-  border-color: var(--primary);
-  box-shadow: 0 2px 6px rgba(37, 99, 235, 0.25);
+  background-color: #ffffff;
+  color: var(--text-main);
+  font-weight: 700;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.04);
 }
 
 /* ==========================================================================
@@ -1924,7 +1930,41 @@ body {
   display: flex;
   align-items: center;
   flex-wrap: wrap;
-  gap: 14px;
+  gap: 12px;
+}
+
+.matrix-filter-group-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.matrix-filter-label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-main);
+  white-space: nowrap;
+}
+
+.matrix-filter-bar .segmented-control {
+  padding: 2px;
+  background-color: #e2e8f0;
+  border-radius: var(--radius-sm);
+  gap: 2px;
+}
+
+.matrix-filter-bar .segmented-btn {
+  padding: 5px 10px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  border-radius: 4px;
+}
+
+.matrix-filter-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
 }
 
 .cutoff-selector-item {
@@ -2835,4 +2875,213 @@ body {
   color: #94a3b8;
   border: 1px dashed #cbd5e1;
 }
+
+/* ==========================================================================
+   Visão Inicial Minimalista: Somente Upload
+   ========================================================================== */
+.minimal-upload-hero {
+  min-height: calc(80vh - 120px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 32px 16px;
+  animation: fadeIn 0.3s ease-out;
+}
+
+.minimal-hero-card {
+  background: #ffffff;
+  border: 1px solid var(--border-color);
+  border-radius: 20px;
+  padding: 44px 36px;
+  max-width: 580px;
+  width: 100%;
+  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.04), 0 2px 6px -1px rgba(0, 0, 0, 0.02);
+  text-align: center;
+}
+
+.minimal-icon-badge {
+  width: 54px;
+  height: 54px;
+  border-radius: 14px;
+  background: #eff6ff;
+  color: #2563eb;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 18px;
+}
+
+.minimal-hero-title {
+  font-size: 1.45rem;
+  font-weight: 700;
+  color: var(--text-main);
+  letter-spacing: -0.025em;
+  margin-bottom: 22px;
+}
+
+.minimal-hero-subtitle {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  line-height: 1.5;
+  margin-bottom: 26px;
+  max-width: 440px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.minimal-dropzone {
+  border: 2px dashed #cbd5e1;
+  background: #f8fafc;
+  border-radius: 16px;
+  padding: 34px 20px;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.minimal-dropzone:hover,
+.minimal-dropzone.dragover {
+  border-color: #2563eb;
+  background-color: #f0f7ff;
+  transform: translateY(-1px);
+}
+
+.minimal-dropzone .dropzone-icon {
+  width: 52px;
+  height: 52px;
+  margin: 0 auto 18px;
+  background: #eff6ff;
+  color: #2563eb;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.dropzone-prompt {
+  font-size: 0.92rem;
+  font-weight: 500;
+  color: #334155;
+  margin-bottom: 4px;
+}
+
+.dropzone-or {
+  display: block;
+  font-size: 0.74rem;
+  color: #94a3b8;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin: 8px 0 14px;
+}
+
+.btn-upload-main {
+  font-size: 0.92rem;
+  font-weight: 600;
+  padding: 10px 24px;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(37, 99, 235, 0.2);
+}
+
+.minimal-hero-footer {
+  margin-top: 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+}
+
+.btn-demo-link {
+  background: transparent;
+  border: 1px solid #e2e8f0;
+  color: #475569;
+  font-size: 0.82rem;
+  font-weight: 500;
+  padding: 7px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  font-family: inherit;
+}
+
+.btn-demo-link:hover {
+  background: #f1f5f9;
+  color: #0f172a;
+  border-color: #cbd5e1;
+}
+
+.minimal-privacy-note {
+  font-size: 0.75rem;
+  color: #94a3b8;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* ==========================================================================
+   Dashboard Minimalista (Após Upload)
+   ========================================================================== */
+.dashboard-view {
+  animation: fadeIn 0.25s ease-out;
+}
+
+.dashboard-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #ffffff;
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 12px 18px;
+  margin-bottom: 18px;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.dashboard-file-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.status-indicator-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #10b981;
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2);
+  flex-shrink: 0;
+}
+
+.file-status-text {
+  display: flex;
+  flex-direction: column;
+}
+
+.file-status-text strong {
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: #0f172a;
+}
+
+.file-status-text span {
+  font-size: 0.76rem;
+  color: #64748b;
+}
+
+.dashboard-topbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 

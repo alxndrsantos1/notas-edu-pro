@@ -431,9 +431,39 @@ function buildOfficialMatrix() {
   // Agrupa os alunos pelo nome normalizado
   const studentsMap = new Map();
 
+  // Usa o RA como chave apenas se ele for único no arquivo (evita fundir homônimos,
+  // sem fundir a turma inteira quando a coluna de RA foi detectada errado)
+  const isRaReliable = (file) => {
+    const ras = file.students
+      .filter(st => normalizeString(st.ra) !== normalizeString(st.name))
+      .map(st => normalizeString(st.ra))
+      .filter(ra => ra && ra !== '-');
+    return ras.length === file.students.length && new Set(ras).size === ras.length;
+  };
+
+  // Nome -> chave de RA, para que arquivos sem RA confiável caiam no mesmo aluno (null = homônimo)
+  const nameToRaKey = new Map();
   appState.processedFiles.forEach(file => {
+    if (!isRaReliable(file)) return;
     file.students.forEach(st => {
-      const key = normalizeString(st.name);
+      const nameKey = normalizeString(st.name);
+      const raKey = `ra:${normalizeString(st.ra)}`;
+      if (nameToRaKey.has(nameKey) && nameToRaKey.get(nameKey) !== raKey) {
+        nameToRaKey.set(nameKey, null);
+      } else {
+        nameToRaKey.set(nameKey, raKey);
+      }
+    });
+  });
+
+  appState.processedFiles.forEach(file => {
+    const raIsReliable = isRaReliable(file);
+
+    file.students.forEach(st => {
+      const nameKey = normalizeString(st.name);
+      const key = raIsReliable
+        ? `ra:${normalizeString(st.ra)}`
+        : (nameToRaKey.get(nameKey) || `nome:${nameKey}`);
       if (!studentsMap.has(key)) {
         studentsMap.set(key, {
           name: st.name,
@@ -1361,7 +1391,10 @@ function initViewTabs() {
 
 function computeGradesForFile(fileObj) {
   const { fileName, rawRows, headers, nameColumn, raColumn } = fileObj;
-  const subjectName = appState.customDisciplinaName || extractSubjectFromFileName(fileName);
+  // A disciplina vinda da URL vale só para o primeiro arquivo; os demais usam o nome do arquivo,
+  // senão todas as matérias se fundiriam numa só na matriz
+  const isFirstFile = appState.processedFiles.length === 0 || appState.processedFiles[0].fileName === fileName;
+  const subjectName = (isFirstFile && appState.customDisciplinaName) || extractSubjectFromFileName(fileName);
   const activeMode = appState.activityMode;
 
   // Todas as colunas avaliativas no modo ativo (Pause, Registro ou Ambos)
@@ -2115,6 +2148,7 @@ function parseCsvFile(file) {
 
         const rawHeaders = rawMatrix[headerRowIndex];
         const columnMappings = [];
+        const headerCounts = {};
         rawHeaders.forEach((h, colIdx) => {
           let cleanH = cleanString(h);
           // Caso especial do Moodle: se a coluna 0 está em branco ou sem nome, é a coluna do Nome do Aluno!
@@ -2123,6 +2157,11 @@ function parseCsvFile(file) {
           }
           // Ignora cabeçalhos em branco secundários (colunas de data/hora do Moodle com header vazio)
           if (cleanH) {
+            // Cabeçalhos repetidos recebem sufixo para não sobrescreverem uns aos outros no objeto da linha
+            headerCounts[cleanH] = (headerCounts[cleanH] || 0) + 1;
+            if (headerCounts[cleanH] > 1) {
+              cleanH = `${cleanH} (${headerCounts[cleanH]})`;
+            }
             columnMappings.push({
               headerName: cleanH,
               colIndex: colIdx
@@ -2210,14 +2249,8 @@ async function handleFilesSelected(files) {
     showToast(`${addedCount} arquivo(s) carregado(s)!`, 'success');
   }
 
-  buildOfficialMatrix();
-  renderMatrixReport();
-  renderPerformanceChart();
-  renderConselhoDeClasseView();
-  updateColumnsAlertBanner();
-  updateSubjectFilterOptions();
-  updateDashboardAndTable();
-  renderUploadedFilesChips();
+  // Recalcula tudo (inclui detecção de semanas letivas e a aba de semanas)
+  recalculateAllGrades();
   updateAppViewState(true);
 }
 

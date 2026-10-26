@@ -2,6 +2,8 @@ import {defineConfig} from 'vite';
 
 export default defineConfig(() => {
   return {
+    // Caminhos relativos: o site pode ser servido em qualquer subcaminho (ex.: /fechamento/)
+    base: './',
     server: {
       // HMR is disabled in AI Studio via DISABLE_HMR env var.
       // Do not modify—file watching is disabled to prevent flickering during agent edits.

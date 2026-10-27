@@ -3,10 +3,10 @@
    ========================================================================== */
 
 :root {
-  --primary: #2563eb;
-  --primary-hover: #1d4ed8;
-  --primary-light: #eff6ff;
-  --primary-border: #bfdbfe;
+  --primary: #4f46e5;
+  --primary-hover: #4338ca;
+  --primary-light: #eef2ff;
+  --primary-border: #c7d2fe;
   
   --secondary: #475569;
   --secondary-light: #f8fafc;
@@ -24,7 +24,7 @@
   --danger-border: #fecaca;
   
   --surface: #ffffff;
-  --background: #f1f5f9;
+  --background: #f8fafc;
   --card-bg: #ffffff;
   
   --text-main: #0f172a;
@@ -34,10 +34,10 @@
   --border-color: #e2e8f0;
   --border-dark: #cbd5e1;
   
-  --radius-sm: 6px;
-  --radius-md: 10px;
-  --radius-lg: 16px;
-  --radius-xl: 20px;
+  --radius-sm: 10px;
+  --radius-md: 16px;
+  --radius-lg: 24px;
+  --radius-xl: 28px;
   
   --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
   --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.07), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
@@ -108,13 +108,13 @@ body {
   width: 44px;
   height: 44px;
   border-radius: var(--radius-md);
-  background: linear-gradient(135deg, #2563eb, #1d4ed8);
+  background: linear-gradient(135deg, #4f46e5, #4338ca);
   color: white;
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 22px;
-  box-shadow: 0 4px 10px rgba(37, 99, 235, 0.3);
+  box-shadow: 0 4px 10px rgba(79, 70, 229, 0.3);
 }
 
 .brand-text h1 {
@@ -247,7 +247,7 @@ body {
   border-color: var(--primary);
   background-color: #f0f7ff;
   transform: scale(1.002);
-  box-shadow: 0 8px 20px rgba(37, 99, 235, 0.1);
+  box-shadow: 0 8px 20px rgba(79, 70, 229, 0.1);
 }
 
 .dropzone-icon {
@@ -321,12 +321,12 @@ body {
 .btn-primary {
   background-color: var(--primary);
   color: white;
-  box-shadow: 0 2px 4px rgba(37, 99, 235, 0.25);
+  box-shadow: 0 2px 4px rgba(79, 70, 229, 0.25);
 }
 
 .btn-primary:hover {
   background-color: var(--primary-hover);
-  box-shadow: 0 4px 8px rgba(37, 99, 235, 0.35);
+  box-shadow: 0 4px 8px rgba(79, 70, 229, 0.35);
 }
 
 .btn-secondary {
@@ -578,7 +578,7 @@ body {
 
 .input-text:focus {
   border-color: var(--primary);
-  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15);
 }
 
 .select-dropdown {
@@ -697,7 +697,7 @@ body {
   align-items: center;
   gap: 6px;
   padding: 3px 10px;
-  background-color: #eff6ff;
+  background-color: #eef2ff;
   color: var(--primary);
   border-radius: 9999px;
   font-size: 0.78rem;
@@ -1024,8 +1024,8 @@ body {
 }
 
 .toast.toast-info {
-  background-color: #1e3a8a;
-  border-left: 4px solid #60a5fa;
+  background-color: #312e81;
+  border-left: 4px solid #818cf8;
 }
 
 @keyframes slideUp {
@@ -1204,7 +1204,7 @@ body {
   width: 80px;
   height: 80px;
   border-radius: 50%;
-  border: 2px solid #1e3a8a;
+  border: 2px solid #312e81;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1253,7 +1253,7 @@ body {
 .report-matrix-table th.subject-header {
   background-color: #f1f5f9;
   font-weight: 800;
-  color: #1e3a8a;
+  color: #312e81;
   font-size: 0.82rem;
   letter-spacing: 0.02em;
 }
@@ -1275,8 +1275,8 @@ body {
 }
 
 .report-matrix-table th.sub-col-criteria {
-  background-color: #eff6ff;
-  color: #1d4ed8;
+  background-color: #eef2ff;
+  color: #4338ca;
   font-size: 0.72rem;
   font-weight: 700;
   padding: 4px 8px;
@@ -1323,7 +1323,7 @@ body {
 }
 
 .report-matrix-table tbody tr:hover {
-  background-color: #dbeafe;
+  background-color: #e0e7ff;
 }
 
 /* ==========================================================================
@@ -1394,7 +1394,7 @@ body {
   background-color: var(--primary);
   color: #ffffff;
   border-color: var(--primary);
-  box-shadow: 0 2px 4px rgba(37, 99, 235, 0.25);
+  box-shadow: 0 2px 4px rgba(79, 70, 229, 0.25);
 }
 
 .chart-controls-group {
@@ -1688,9 +1688,9 @@ body {
 
 /* Alerta de Verificação de Colunas */
 .columns-alert-banner {
-  background-color: #eff6ff;
-  border: 1px solid #bfdbfe;
-  color: #1e40af;
+  background-color: #eef2ff;
+  border: 1px solid #c7d2fe;
+  color: #3730a3;
   border-radius: var(--radius-md);
   padding: 10px 16px;
   font-size: 0.84rem;
@@ -1740,7 +1740,7 @@ body {
 
 .mapping-select:focus {
   border-color: var(--primary);
-  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15);
 }
 
 .mapping-preview-box {
@@ -1821,7 +1821,7 @@ body {
 .pdf-type-card.active {
   border-color: var(--primary);
   background-color: #f0f7ff;
-  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.12);
+  box-shadow: 0 2px 8px rgba(79, 70, 229, 0.12);
 }
 
 .pdf-type-radio {
@@ -1852,8 +1852,8 @@ body {
   font-weight: 700;
   padding: 2px 8px;
   border-radius: 9999px;
-  background-color: #dbeafe;
-  color: #1d4ed8;
+  background-color: #e0e7ff;
+  color: #4338ca;
 }
 
 .pdf-type-badge.individual {
@@ -2102,7 +2102,7 @@ body {
 }
 
 .conselho-metric-card.metric-total {
-  border-left-color: #3b82f6;
+  border-left-color: #6366f1;
 }
 
 .conselho-metric-card.metric-approved {
@@ -2177,8 +2177,8 @@ body {
 .simulator-badge {
   font-size: 0.72rem;
   font-weight: 600;
-  color: #1d4ed8;
-  background-color: #dbeafe;
+  color: #4338ca;
+  background-color: #e0e7ff;
   padding: 3px 8px;
   border-radius: 4px;
 }
@@ -2813,8 +2813,8 @@ body {
 }
 
 .week-card.active-focus {
-  border-color: #3b82f6;
-  background: #eff6ff;
+  border-color: #6366f1;
+  background: #eef2ff;
   box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
 }
 
@@ -2903,8 +2903,8 @@ body {
   width: 54px;
   height: 54px;
   border-radius: 14px;
-  background: #eff6ff;
-  color: #2563eb;
+  background: #eef2ff;
+  color: #4f46e5;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -2940,7 +2940,7 @@ body {
 
 .minimal-dropzone:hover,
 .minimal-dropzone.dragover {
-  border-color: #2563eb;
+  border-color: #4f46e5;
   background-color: #f0f7ff;
   transform: translateY(-1px);
 }
@@ -2949,8 +2949,8 @@ body {
   width: 52px;
   height: 52px;
   margin: 0 auto 18px;
-  background: #eff6ff;
-  color: #2563eb;
+  background: #eef2ff;
+  color: #4f46e5;
   border-radius: 12px;
   display: flex;
   align-items: center;
@@ -2978,7 +2978,7 @@ body {
   font-weight: 600;
   padding: 10px 24px;
   border-radius: 8px;
-  box-shadow: 0 1px 3px rgba(37, 99, 235, 0.2);
+  box-shadow: 0 1px 3px rgba(79, 70, 229, 0.2);
 }
 
 .minimal-hero-footer {
@@ -3085,3 +3085,82 @@ body {
 }
 
 
+
+
+/* ==========================================================================
+   Visual alinhado às Ferramentas do Professor (indigo, soft UI, pill)
+   ========================================================================== */
+body {
+  background: linear-gradient(135deg, #eef2ff 0%, #ffffff 50%, #faf5ff 100%) fixed;
+}
+body::before, body::after {
+  content: "";
+  position: fixed;
+  z-index: -1;
+  width: 384px;
+  height: 384px;
+  border-radius: 50%;
+  filter: blur(64px);
+  pointer-events: none;
+}
+body::before { left: -96px; top: -96px; background: rgba(199, 210, 254, 0.5); }
+body::after { right: -96px; top: 160px; background: rgba(233, 213, 255, 0.5); }
+
+.main-header {
+  background-color: rgba(255, 255, 255, 0.72);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  padding: 12px 0;
+}
+.brand-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 16px;
+  background: var(--primary);
+  box-shadow: 0 6px 14px rgba(79, 70, 229, 0.25);
+}
+.brand-icon svg { width: 22px; height: 22px; }
+.brand-text h1 { font-weight: 800; }
+.back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border-radius: 9999px;
+  background: var(--primary-light);
+  color: #4338ca;
+  font-weight: 600;
+  font-size: 0.875rem;
+  text-decoration: none;
+  white-space: nowrap;
+}
+.back-link:hover { background: #e0e7ff; }
+.back-link svg { width: 16px; height: 16px; }
+@media (max-width: 560px) { .back-link span { display: none; } .back-link { padding: 8px 10px; } }
+
+.card { border-color: #f1f5f9; }
+.btn, .btn-sm, .btn-xs, .btn-upload-main, .btn-demo-link,
+.btn-risk-toggle, .btn-comm-action, .week-chip-btn, .chart-type-btn {
+  border-radius: 9999px;
+}
+
+.site-foot {
+  max-width: 1240px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 8px 20px 36px;
+  color: var(--secondary);
+  font-size: 0.875rem;
+  text-align: center;
+}
+.site-foot strong { color: var(--text-main); font-weight: 600; }
+
+@media print {
+  body { background: #fff; }
+  body::before, body::after, .site-foot, .back-link { display: none !important; }
+}
+
+/* Cabeçalho do relatório: só aparece na impressão */
+.print-header-only { display: none; }
+@media print { .print-header-only { display: block; } }

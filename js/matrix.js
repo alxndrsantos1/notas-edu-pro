@@ -223,7 +223,7 @@ export function renderMatrixReport() {
     `;
   });
 
-  row1 += `<th rowspan="2" class="subject-header">Total de Atividades Concluídas<br><span style="font-weight: 600; font-size: 0.72rem; color: #1e40af;">(${subColLabel})</span></th></tr>`;
+  row1 += `<th rowspan="2" class="subject-header">Total de Atividades Concluídas<br><span style="font-weight: 600; font-size: 0.72rem; color: #3730a3;">(${subColLabel})</span></th></tr>`;
   row2 += `</tr>`;
 
   thead.innerHTML = row1 + row2;

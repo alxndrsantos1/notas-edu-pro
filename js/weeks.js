@@ -269,7 +269,7 @@ export function renderWeeksView() {
       <th style="width: 120px; text-align: center;">RA / SED</th>
       ${weeks.map(w => {
         const isFoc = w === focusWeek;
-        const headerStyle = isFoc ? 'background: #eff6ff; color: #1d4ed8; border-bottom: 2px solid #3b82f6;' : '';
+        const headerStyle = isFoc ? 'background: #eef2ff; color: #4338ca; border-bottom: 2px solid #6366f1;' : '';
         return `<th style="text-align: center; min-width: 110px; ${headerStyle}">Semana ${w}</th>`;
       }).join('')}
       <th style="text-align: center; min-width: 100px;">Atividades Feitas</th>

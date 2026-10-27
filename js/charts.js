@@ -33,9 +33,9 @@ export function getPerformanceTier(grade) {
   if (grade >= 6.0) {
     return { 
       name: 'Adequado (Aprovado)', 
-      color: '#3b82f6', 
-      dark: '#1d4ed8', 
-      lightBg: '#dbeafe',
+      color: '#6366f1', 
+      dark: '#4338ca', 
+      lightBg: '#e0e7ff',
       range: '6,0 a 7,9',
       icon: '🟢'
     };
@@ -239,7 +239,7 @@ export function renderDistributionChart(students, subjects, averageActivities, c
 
   const groups = {
     excelencia: { title: 'Destaque / Excelência', range: '≥ 8,0', color: '#10b981', dark: '#059669', lightBg: '#dcfce7', icon: '🌟', students: [] },
-    adequado: { title: 'Adequado / Aprovados', range: `${cutoffStr} a 7,9`, color: '#3b82f6', dark: '#1d4ed8', lightBg: '#dbeafe', icon: '🟢', students: [] },
+    adequado: { title: 'Adequado / Aprovados', range: `${cutoffStr} a 7,9`, color: '#6366f1', dark: '#4338ca', lightBg: '#e0e7ff', icon: '🟢', students: [] },
     atencao: { title: 'Atenção / Recuperação', range: `${(cutoff - 1.0 > 0 ? (cutoff - 1.0).toFixed(1).replace('.', ',') : '0,0')} a ${(cutoff - 0.1).toFixed(1).replace('.', ',')}`, color: '#f59e0b', dark: '#b45309', lightBg: '#fef3c7', icon: '🟡', students: [] },
     critico: { title: 'Crítico / Defasagem', range: `< ${(cutoff - 1.0 > 0 ? (cutoff - 1.0).toFixed(1).replace('.', ',') : cutoffStr)}`, color: '#ef4444', dark: '#b91c1c', lightBg: '#fee2e2', icon: '🔴', students: [] }
   };
@@ -377,7 +377,7 @@ export function renderSubjectsComparisonChart(students, subjects, averageActivit
   const marginBottom = 40;
   const svgHeight = Math.max(460, marginTop + subjects.length * cardH + marginBottom);
 
-  const colors = ['#3b82f6', '#10b981', '#8b5cf6', '#f59e0b', '#06b6d4', '#ec4899', '#6366f1'];
+  const colors = ['#6366f1', '#10b981', '#8b5cf6', '#f59e0b', '#06b6d4', '#ec4899', '#6366f1'];
 
   let svg = `<svg viewBox="0 0 ${svgWidth} ${svgHeight}" class="chart-svg" xmlns="http://www.w3.org/2000/svg">`;
 
@@ -494,8 +494,8 @@ export function renderModernColumnsChart(students, subjects, averageActivities, 
     const barY = getY(st.totalCompleted);
     const bHeight = (marginTop + chartHeight) - barY;
     const isAboveAvg = st.totalCompleted >= averageActivities;
-    const color = isAboveAvg ? '#3b82f6' : '#f97316';
-    const strokeColor = isAboveAvg ? '#1d4ed8' : '#c2410c';
+    const color = isAboveAvg ? '#6366f1' : '#f97316';
+    const strokeColor = isAboveAvg ? '#4338ca' : '#c2410c';
 
     svg += `
       <rect 

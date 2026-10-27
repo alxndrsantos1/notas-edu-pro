@@ -3,6 +3,8 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- Quando servido em /fechamento (sem barra), vai para /fechamento/ para os arquivos relativos carregarem -->
+    <script>if(location.pathname.replace(/\/+$/,"")==="/fechamento"&&location.pathname.slice(-1)!=="/")location.replace("/fechamento/"+location.search+location.hash);</script>
     
     <!-- Favicon / Ícone da Aba do Navegador -->
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />

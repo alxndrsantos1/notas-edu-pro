@@ -3155,6 +3155,8 @@ body::after { right: -96px; top: 160px; background: rgba(233, 213, 255, 0.5); }
   text-align: center;
 }
 .site-foot strong { color: var(--text-main); font-weight: 600; }
+.site-foot a { color: #4338ca; font-weight: 600; text-decoration: none; }
+.site-foot a:hover { text-decoration: underline; }
 
 @media print {
   body { background: #fff; }

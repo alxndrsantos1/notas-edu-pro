@@ -2,7 +2,7 @@ import { computeGradesForFile, recalculateAllGrades } from './grades.js';
 import { findStudentNameColumn, findStudentRAColumn, isEvaluativeColumn } from './rules.js';
 import { appState } from './state.js';
 import { updateAppViewState } from './tabs.js';
-import { cleanString, normalizeString, showToast } from './utils.js';
+import { cleanString, escapeHtml, normalizeString, showToast } from './utils.js';
 
 // ==============================================================================
 // 6. PARSING DE ARQUIVOS COM PAPAPARSE
@@ -261,13 +261,13 @@ export function renderUploadedFilesChips() {
       <div class="file-chip-info">
         <span class="file-chip-icon">📄</span>
         <div class="file-chip-meta">
-          <div class="file-chip-name" title="${f.fileName}">${f.fileName}</div>
+          <div class="file-chip-name" title="${escapeHtml(f.fileName)}">${escapeHtml(f.fileName)}</div>
           <div class="file-chip-details">
             ${f.studentCount} alunos • ${f.totalActivities} atividades
           </div>
         </div>
       </div>
-      <button class="file-remove-btn" title="Remover" data-filename="${f.fileName}">✕</button>
+      <button class="file-remove-btn" title="Remover">✕</button>
     `;
 
     chip.querySelector('.file-remove-btn').addEventListener('click', (e) => {

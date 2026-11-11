@@ -147,7 +147,7 @@ export function updateDashboardMetrics() {
 
   if (totalStudentsEl) totalStudentsEl.textContent = total.toString();
   if (totalClassesEl) totalClassesEl.textContent = subjects.length.toString();
-  if (avgGradeEl) avgGradeEl.textContent = `${averageActivities.toFixed(1)} ativ.`;
+  if (avgGradeEl) avgGradeEl.textContent = `${averageActivities.toFixed(1).replace('.', ',')} ativ.`;
   if (approvalRateEl) approvalRateEl.textContent = `${rate}%`;
 }
 

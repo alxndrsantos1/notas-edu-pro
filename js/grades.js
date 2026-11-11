@@ -20,7 +20,10 @@ export function computeGradesForFile(fileObj) {
   // A disciplina vinda da URL vale só para o primeiro arquivo; os demais usam o nome do arquivo,
   // senão todas as matérias se fundiriam numa só na matriz
   const isFirstFile = appState.processedFiles.length === 0 || appState.processedFiles[0].fileName === fileName;
-  const subjectName = (isFirstFile && appState.customDisciplinaName) || extractSubjectFromFileName(fileName);
+  // fixedSubjectName: nome de disciplina definido pelo próprio arquivo (dados de exemplo), mantido nos recálculos
+  const subjectName = fileObj.fixedSubjectName
+    || (isFirstFile && appState.customDisciplinaName)
+    || extractSubjectFromFileName(fileName);
   const activeMode = appState.activityMode;
 
   // Todas as colunas avaliativas no modo ativo (Pause, Registro ou Ambos)

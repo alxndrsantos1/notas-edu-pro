@@ -484,7 +484,7 @@ export function exportWeeksToExcel() {
     ];
 
     const data = [
-      [`Acompanhamento por Semana Letiva - ${turmaName}`],
+      [`Acompanhamento por Semana Letiva${turmaName ? ` - ${turmaName}` : ""}`],
       [`Emissão: ${new Date().toLocaleDateString('pt-BR')}`],
       [],
       header

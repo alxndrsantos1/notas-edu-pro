@@ -44,7 +44,9 @@ export function updateColumnsAlertBanner() {
   alertText.innerHTML = `
     Arquivo <strong>${escapeHtml(firstFile.fileName)}</strong>: 
     Nome identificado em <strong>"${escapeHtml(firstFile.nameColumn)}"</strong> 
-    e RA em <strong>"${escapeHtml(firstFile.raColumn)}"</strong>.
+    ${firstFile.raColumn
+      ? `e RA em <strong>"${escapeHtml(firstFile.raColumn)}"</strong>.`
+      : 'e <strong>nenhuma coluna de RA</strong> encontrada.'}
   `;
 }
 
@@ -137,6 +139,13 @@ export function populateColumnSelects() {
 
   nameSelect.innerHTML = '';
   raSelect.innerHTML = '';
+
+  // Permite deixar o arquivo sem coluna de RA
+  const optNoRa = document.createElement('option');
+  optNoRa.value = '';
+  optNoRa.textContent = '(Sem coluna de RA)';
+  if (!curFile.raColumn) optNoRa.selected = true;
+  raSelect.appendChild(optNoRa);
 
   curFile.headers.forEach(header => {
     const isEval = isEvaluativeColumn(header, 'both');

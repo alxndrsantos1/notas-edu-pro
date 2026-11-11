@@ -76,12 +76,15 @@ export function buildOfficialMatrix() {
           name: st.name,
           ra: st.ra,
           subjectScores: {},
+          weeklyBreakdown: {},
           totalCompleted: 0,
           overallMaxActivities: 0
         });
       }
 
       const entry = studentsMap.get(key);
+      // Se o primeiro arquivo do aluno não tinha RA, aproveita o de outro arquivo
+      if ((!entry.ra || entry.ra === '-') && st.ra && st.ra !== '-') entry.ra = st.ra;
       const gradeVal = st.totalActivities > 0 
         ? Math.round((st.completedActivities / st.totalActivities) * 100) / 10 
         : 0;
@@ -92,6 +95,15 @@ export function buildOfficialMatrix() {
         percentage: st.percentage,
         grade: st.grade !== undefined ? st.grade : gradeVal
       };
+
+      // Soma o detalhamento por semana de todas as disciplinas (usado na aba de semanas)
+      Object.values(st.weeklyBreakdown || {}).forEach(info => {
+        const acc = entry.weeklyBreakdown[info.week]
+          || (entry.weeklyBreakdown[info.week] = { week: info.week, completed: 0, total: 0, percentage: 0 });
+        acc.completed += info.completed;
+        acc.total += info.total;
+        acc.percentage = acc.total > 0 ? Math.round((acc.completed / acc.total) * 100) : 0;
+      });
     });
   });
 
@@ -122,15 +134,18 @@ export function buildOfficialMatrix() {
   const totalSum = consolidatedStudents.reduce((acc, s) => acc + s.totalCompleted, 0);
   const avg = consolidatedStudents.length > 0 ? (totalSum / consolidatedStudents.length) : 0;
 
-  // Tenta inferir nome da turma
-  let inferredTurma = 'Turma 3A';
-  const firstFileName = appState.processedFiles[0].fileName;
-  const turmaDoNome = parseFileNameInfo(firstFileName).turma;
-  const match = firstFileName.match(/([0-9]+[a-zA-Z])/);
-  if (turmaDoNome) {
-    inferredTurma = `Turma ${turmaDoNome}`;
-  } else if (match) {
-    inferredTurma = `Turma ${match[1].toUpperCase()}`;
+  // Nome da turma: parâmetro ?turma= da URL, depois o nome do arquivo no formato do AVA
+  // ou um código como "3A" isolado. Sem nada disso fica vazio, e as telas mostram o título sem turma.
+  let inferredTurma = appState.customTurmaName || '';
+  if (!inferredTurma) {
+    const firstFileName = appState.processedFiles[0].fileName;
+    const turmaDoNome = parseFileNameInfo(firstFileName).turma;
+    const match = firstFileName.match(/(?:^|[^a-zA-Z0-9])([1-9][0-9]?[a-zA-Z])(?![a-zA-Z0-9])/);
+    if (turmaDoNome) {
+      inferredTurma = `Turma ${turmaDoNome}`;
+    } else if (match) {
+      inferredTurma = `Turma ${match[1].toUpperCase()}`;
+    }
   }
 
   appState.matrixData = {
@@ -222,12 +237,12 @@ export function renderMatrixReport() {
   subjects.forEach(sub => {
     row1 += `<th colspan="2" class="subject-header">${escapeHtml(sub.name)}</th>`;
     row2 += `
-      <th class="sub-col-header sub-col-criteria" title="${subColTooltip}">${subColLabel} (${sub.totalActivities} ativ.)</th>
+      <th class="sub-col-header sub-col-criteria" title="${subColTooltip} — ${sub.totalActivities} atividades">Feitas / ${sub.totalActivities}</th>
       <th class="sub-col-header sub-col-grade" title="Nota de 0 a 10 (100% = 10,0)">Nota</th>
     `;
   });
 
-  row1 += `<th rowspan="2" class="subject-header">Total de Atividades Concluídas<br><span style="font-weight: 600; font-size: 0.72rem; color: #3730a3;">(${subColLabel})</span></th></tr>`;
+  row1 += `<th rowspan="2" class="subject-header">Total<br>Concluídas<br><span style="font-weight: 600; font-size: 0.7rem; color: #3730a3;">(${subColLabel})</span></th></tr>`;
   row2 += `</tr>`;
 
   thead.innerHTML = row1 + row2;

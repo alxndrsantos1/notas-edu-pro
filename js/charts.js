@@ -87,7 +87,7 @@ export function renderPerformanceChart() {
   const { students, subjects, averageActivities } = appState.matrixData;
 
   if (avgBadge) {
-    avgBadge.textContent = students.length > 0 ? `Média da Turma: ${averageActivities.toFixed(1)} ativ.` : 'Média da Turma: -';
+    avgBadge.textContent = students.length > 0 ? `Média da Turma: ${averageActivities.toFixed(1).replace('.', ',')} ativ.` : 'Média da Turma: -';
   }
 
   if (students.length === 0) {
@@ -159,7 +159,7 @@ export function renderHorizontalBarChart(students, subjects, averageActivities, 
   svg += `
     <line x1="${avgX}" y1="${marginTop - 12}" x2="${avgX}" y2="${marginTop + sortedStudents.length * rowHeight + 10}" stroke="#dc2626" stroke-width="2" stroke-dasharray="5,4" />
     <rect x="${avgX - 48}" y="${marginTop - 40}" width="96" height="22" rx="4" fill="#dc2626" />
-    <text x="${avgX}" y="${marginTop - 25}" font-size="11" font-weight="bold" fill="#ffffff" text-anchor="middle" font-family="system-ui, sans-serif">Média: ${averageActivities.toFixed(1)}</text>
+    <text x="${avgX}" y="${marginTop - 25}" font-size="11" font-weight="bold" fill="#ffffff" text-anchor="middle" font-family="system-ui, sans-serif">Média: ${averageActivities.toFixed(1).replace('.', ',')}</text>
   `;
 
   // Renderiza as Barras dos Alunos
@@ -432,7 +432,7 @@ export function renderSubjectsComparisonChart(students, subjects, averageActivit
 
     // Média de Atividades
     svg += `
-      <text x="760" y="${y + 32}" font-size="13.5" font-weight="700" fill="#1e293b" font-family="system-ui, sans-serif">${avgCompleted.toFixed(1)} <tspan font-size="11" font-weight="normal" fill="#64748b">/ ${sub.totalActivities}</tspan></text>
+      <text x="760" y="${y + 32}" font-size="13.5" font-weight="700" fill="#1e293b" font-family="system-ui, sans-serif">${avgCompleted.toFixed(1).replace('.', ',')} <tspan font-size="11" font-weight="normal" fill="#64748b">/ ${sub.totalActivities}</tspan></text>
     `;
 
     // Nota Média
@@ -482,7 +482,7 @@ export function renderModernColumnsChart(students, subjects, averageActivities, 
   svg += `
     <line x1="${marginLeft}" y1="${avgY}" x2="${marginLeft + chartWidth + 10}" y2="${avgY}" stroke="#ef4444" stroke-width="2.2" stroke-dasharray="6,4" />
     <rect x="${marginLeft + chartWidth + 6}" y="${avgY - 11}" width="82" height="22" rx="4" fill="#ef4444" />
-    <text x="${marginLeft + chartWidth + 47}" y="${avgY + 4}" font-size="10.5" font-weight="bold" fill="#ffffff" text-anchor="middle" font-family="system-ui, sans-serif">Média: ${averageActivities.toFixed(1)}</text>
+    <text x="${marginLeft + chartWidth + 47}" y="${avgY + 4}" font-size="10.5" font-weight="bold" fill="#ffffff" text-anchor="middle" font-family="system-ui, sans-serif">Média: ${averageActivities.toFixed(1).replace('.', ',')}</text>
   `;
 
   // Renderização das Colunas Verticais

@@ -202,7 +202,7 @@ export async function handleDownloadPdf() {
   const includeStats = document.getElementById('pdfOptIncludeStats')?.checked ?? true;
   const signatureLine = document.getElementById('pdfOptSignatureLine')?.checked ?? true;
 
-  const turma = turmaInput ? turmaInput.value.trim() || turmaName : turmaName;
+  const turma = (turmaInput && turmaInput.value.trim()) || turmaName || 'Turma';
   const periodo = periodoInput ? periodoInput.value.trim() || '3º Bimestre' : '3º Bimestre';
   const school = schoolInput ? schoolInput.value.trim() : '';
 
@@ -413,7 +413,7 @@ export async function generateOfficialClassPdf(options) {
   });
 
   footRow.push({
-    content: averageActivities.toFixed(1),
+    content: averageActivities.toFixed(1).replace('.', ','),
     styles: { halign: 'center', fontStyle: 'bold', fillColor: [226, 232, 240], textColor: [15, 23, 42] }
   });
 
@@ -462,7 +462,7 @@ export async function generateOfficialClassPdf(options) {
   doc.setFont('helvetica', 'normal');
   doc.setFontSize(8.5);
   doc.setTextColor(100, 116, 139);
-  doc.text(`Ranking comparativo de atividades concluídas por estudante com linha de média geral da turma (${averageActivities.toFixed(1)} atividades)`, 14, 19);
+  doc.text(`Ranking comparativo de atividades concluídas por estudante com linha de média geral da turma (${averageActivities.toFixed(1).replace('.', ',')} atividades)`, 14, 19);
 
   // Captura e inclusão da imagem do gráfico
   renderPerformanceChart();
@@ -525,7 +525,7 @@ export async function generateOfficialClassPdf(options) {
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(13);
     doc.setTextColor(217, 119, 6);
-    doc.text(averageActivities.toFixed(1), 14 + colW * 2.5, statsY + 11, { align: 'center' });
+    doc.text(averageActivities.toFixed(1).replace('.', ','), 14 + colW * 2.5, statsY + 11, { align: 'center' });
     doc.setFont('helvetica', 'normal');
     doc.setFontSize(7.8);
     doc.setTextColor(100, 116, 139);
@@ -823,7 +823,7 @@ export async function generateChartOnlyPdf(options) {
   doc.setFont('helvetica', 'normal');
   doc.setFontSize(9);
   doc.setTextColor(100, 116, 139);
-  doc.text(`Atividades Concluídas em Relação à Média da Turma (${averageActivities.toFixed(1)}) • ${periodo}`, 14, currentY + 6);
+  doc.text(`Atividades Concluídas em Relação à Média da Turma (${averageActivities.toFixed(1).replace('.', ',')}) • ${periodo}`, 14, currentY + 6);
 
   // Injeta a imagem do gráfico
   renderPerformanceChart();
@@ -914,7 +914,7 @@ export function exportMatrixToExcel() {
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, 'Relatório de Resultados');
 
-    const fileName = `Relatorio_Resultados_${turmaName.replace(/\s+/g, '_')}.xlsx`;
+    const fileName = `Relatorio_Resultados_${(turmaName || "Turma").replace(/\s+/g, '_')}.xlsx`;
     XLSX.writeFile(wb, fileName);
     showToast(`Planilha "${fileName}" exportada com sucesso!`, 'success');
   } catch (err) {
@@ -971,7 +971,7 @@ export function exportMatrixToCsv() {
 
     const a = document.createElement('a');
     a.href = url;
-    a.download = `Relatorio_Resultados_${turmaName.replace(/\s+/g, '_')}.csv`;
+    a.download = `Relatorio_Resultados_${(turmaName || "Turma").replace(/\s+/g, '_')}.csv`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);

@@ -201,6 +201,15 @@ export function isColumnIncludedInWeekFilter(header) {
   return true;
 }
 
+/**
+ * Verifica se o termo aparece no cabeçalho normalizado como palavra inteira
+ * (assim "ra" não casa com "geracao" nem "rm" com "turma").
+ */
+function hasWholeTerm(norm, term) {
+  const escaped = term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  return new RegExp(`(^|[^a-z0-9])${escaped}($|[^a-z0-9])`).test(norm);
+}
+
 export function findStudentNameColumn(headers, sampleRows = []) {
   if (!headers || headers.length === 0) return 'Nome';
 
@@ -212,14 +221,7 @@ export function findStudentNameColumn(headers, sampleRows = []) {
       
       const normH = normalizeString(h);
       // Evita colunas explicitamente de RA, email, data, código
-      if (
-        normH.includes('email') || 
-        normH.includes('data') || 
-        normH.includes('hora') || 
-        normH.includes('codigo') || 
-        normH.includes('id') || 
-        normH.includes('ra')
-      ) {
+      if (['email', 'data', 'hora', 'codigo', 'id', 'ra'].some(term => hasWholeTerm(normH, term))) {
         continue;
       }
 
@@ -271,17 +273,14 @@ export function findStudentRAColumn(headers, sampleRows = []) {
 
   // 1. Termos diretos de RA / SED / Matrícula
   const raTerms = [
-    'codigo sed', 'código sed', 'codigo usuario sed', 'codigo do usuario', 
+    'codigo sed', 'codigo usuario sed', 'codigo do usuario',
     'identificacao de usuario', 'identificacao do usuario', 'identificacao',
-    'id sed', 'id do aluno', 'id externo', 'sed', 'ra', 'registro do aluno', 
-    'ra do aluno', 'matricula', 'matrícula', 'rm', 'cpf'
+    'id sed', 'id do aluno', 'id externo', 'sed', 'ra', 'registro do aluno',
+    'ra do aluno', 'matricula', 'rm', 'cpf'
   ];
 
   for (const term of raTerms) {
-    const found = headers.find(h => {
-      const norm = normalizeString(h);
-      return norm === term || norm.includes(term);
-    });
+    const found = headers.find(h => hasWholeTerm(normalizeString(h), term));
     if (found) return found;
   }
 
@@ -295,8 +294,17 @@ export function findStudentRAColumn(headers, sampleRows = []) {
     }
   }
 
+  // 3. Último recurso: primeira coluna cadastral cujos valores parecem códigos (têm dígitos, sem espaços).
+  // Sem candidata, devolve '' e os alunos ficam sem RA ("-"), em vez de usar uma coluna qualquer como "Turma".
   const nonEval = headers.filter(h => !isEvaluativeColumn(h, 'both') && !isIgnoredNonEvaluativeColumn(h));
-  return nonEval.length > 1 ? nonEval[1] : (nonEval[0] || headers[1] || headers[0]);
+  const notIdTerms = ['turma', 'curso', 'grupo', 'serie', 'escola', 'data', 'hora'];
+  const candidate = nonEval.find(h => {
+    const norm = normalizeString(h);
+    if (notIdTerms.some(term => hasWholeTerm(norm, term))) return false;
+    const values = sampleRows.map(r => cleanString(r[h])).filter(Boolean);
+    return values.length > 0 && values.every(v => /\d/.test(v) && !v.includes(' '));
+  });
+  return candidate || '';
 }
 
 export function isActivityCompleted(cellValue) {

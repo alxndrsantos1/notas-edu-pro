@@ -25,7 +25,8 @@ export function showToast(message, type = 'info') {
   if (type === 'success') icon = '✅';
   if (type === 'error') icon = '⚠️';
 
-  toast.innerHTML = `<span>${icon}</span> <span>${message}</span>`;
+  // A mensagem pode conter nomes de arquivo ou de aluno, então entra como texto
+  toast.innerHTML = `<span>${icon}</span> <span>${escapeHtml(message)}</span>`;
   container.appendChild(toast);
 
   setTimeout(() => {

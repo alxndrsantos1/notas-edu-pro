@@ -183,7 +183,7 @@ export function renderConselhoDeClasseView() {
       const opt = document.createElement('option');
       opt.value = s.name;
       opt.textContent = s.isRisk 
-        ? `⚠️ ${s.name} (${s.deficitCount} defasagem${s.deficitCount > 1 ? 's' : ''})`
+        ? `⚠️ ${s.name} (${s.deficitCount} defasage${s.deficitCount > 1 ? 'ns' : 'm'})`
         : `✅ ${s.name} (Sem pendências)`;
       simStudentSelect.appendChild(opt);
     });
@@ -406,7 +406,7 @@ export async function exportConselhoToPdf() {
   doc.setFont('helvetica', 'normal');
   doc.setFontSize(9);
   doc.setTextColor(100, 116, 139);
-  doc.text(`Turma: ${turmaName} • Emissão: ${dateStr} • Média Mínima de Corte: ${cutoff.toFixed(1).replace('.', ',')}`, pageWidth / 2, currentY, { align: 'center' });
+  doc.text(`${turmaName || "Turma não informada"} • Emissão: ${dateStr} • Média Mínima de Corte: ${cutoff.toFixed(1).replace('.', ',')}`, pageWidth / 2, currentY, { align: 'center' });
 
   currentY += 10;
 
@@ -500,7 +500,7 @@ export async function exportConselhoToPdf() {
   doc.setTextColor(148, 163, 184);
   doc.text('EduGrade • Ata Oficial do Conselho de Classe', 14, pageHeight - 5);
 
-  const sanitizedTurma = turmaName.replace(/[^\w\s-]/gi, '').replace(/\s+/g, '_');
+  const sanitizedTurma = (turmaName || "Turma").replace(/[^\w\s-]/gi, '').replace(/\s+/g, '_');
   const fileName = `Ata_Conselho_Classe_${sanitizedTurma}.pdf`;
   doc.save(fileName);
   showToast(`Ata "${fileName}" exportada com sucesso!`, 'success');
@@ -525,7 +525,7 @@ export function exportConselhoToExcel() {
 
   try {
     const data = [];
-    data.push([`ATA DO CONSELHO DE CLASSE - TURMA ${turmaName.toUpperCase()}`]);
+    data.push([`ATA DO CONSELHO DE CLASSE - ${(turmaName || "Turma").toUpperCase()}`]);
     data.push([`Critério de Corte da Escola: Nota ${cutoff.toFixed(1).replace('.', ',')} | Modalidade: ${appState.activityMode}`]);
     data.push([]);
     data.push(['#', 'Nome do Aluno', 'RA (SED)', 'Situação no Conselho', 'Disciplinas em Defasagem', 'Total em Risco', 'Atividades Faltantes para Média', 'Ação Pedagógica Recomendada']);
@@ -560,7 +560,7 @@ export function exportConselhoToExcel() {
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, 'Conselho de Classe');
 
-    const fileName = `Dossie_Conselho_Classe_${turmaName.replace(/\s+/g, '_')}.xlsx`;
+    const fileName = `Dossie_Conselho_Classe_${(turmaName || "Turma").replace(/\s+/g, '_')}.xlsx`;
     XLSX.writeFile(wb, fileName);
     showToast(`Dossiê do Conselho "${fileName}" exportado com sucesso!`, 'success');
   } catch (err) {

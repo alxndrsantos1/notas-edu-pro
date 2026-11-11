@@ -119,26 +119,18 @@
           </div>
           <div class="dashboard-topbar-actions">
             <button type="button" class="btn btn-secondary btn-sm" id="btnUploadAnother" onclick="document.getElementById('fileInput').click()" title="Carregar outro relatório CSV">
-              📂 Carregar Outro Arquivo
+              📂 Adicionar arquivo
             </button>
-            <button type="button" class="btn btn-danger btn-sm" id="btnDropzoneClear" title="Limpar e voltar à tela inicial">
-              🗑️ Trocar Arquivo / Limpar
+            <button type="button" class="btn btn-danger btn-sm" id="btnDropzoneClear" title="Remover todos os arquivos e voltar à tela inicial">
+              🗑️ Limpar tudo
             </button>
           </div>
-        </div>
 
-        <!-- Lista compacta de arquivos carregados (se múltiplos) -->
-        <div id="uploadedFilesCard" class="uploaded-files-card" style="display: none;">
-          <div class="uploaded-files-header">
-            <div class="section-title" style="font-size: 0.88rem; margin: 0;">
-              <span>📑</span> Arquivos Ativos (<span id="uploadedFilesCount">0</span>):
+          <!-- Arquivos carregados, em etiquetas compactas dentro do mesmo cartão -->
+          <div id="uploadedFilesCard" class="uploaded-files-card" style="display: none;">
+            <div class="files-badge-list" id="uploadedFilesList">
+              <!-- Chips injetados dinamicamente via script.js -->
             </div>
-            <button type="button" class="btn btn-secondary btn-xs" id="btnClearAllUploadedFiles">
-              Limpar Todos
-            </button>
-          </div>
-          <div class="files-badge-list" id="uploadedFilesList">
-            <!-- Chips injetados dinamicamente via script.js -->
           </div>
         </div>
 
@@ -208,19 +200,16 @@
         <!-- Botões de Ação e Exportação -->
         <div class="export-actions">
           <button type="button" class="btn btn-primary" id="btnOpenPdfModal" title="Gerar arquivo PDF pronto para compartilhar com os alunos">
-            🎓 Gerar PDF para Alunos
+            🎓 PDF para alunos
           </button>
           <button type="button" class="btn btn-success" id="btnExportXlsx" title="Exportar tabela pronta para o Microsoft Excel">
-            📊 Baixar Excel (.xlsx)
+            📊 Excel
           </button>
           <button type="button" class="btn btn-secondary" id="btnDownloadPdf" title="Baixar relatório de notas da turma direto em arquivo PDF">
-            📑 Baixar PDF
+            📑 PDF da turma
           </button>
           <button type="button" class="btn btn-secondary" id="btnPrint" title="Imprimir diário de notas ou salvar em PDF pelo navegador">
-            🖨️ Imprimir A4
-          </button>
-          <button type="button" class="btn btn-danger btn-sm" id="clearAllBtn" title="Limpar todos os dados carregados">
-            🗑️ Limpar
+            🖨️ Imprimir
           </button>
         </div>
       </section>
@@ -228,19 +217,19 @@
       <!-- Abas de Visualização Minimalistas -->
       <div class="view-tabs-nav">
         <button type="button" class="view-tab-btn active" id="tabBtnMatrix" data-tab="matrixView">
-          📑 Relatório Oficial (Matriz)
+          📑 Relatório Oficial
         </button>
         <button type="button" class="view-tab-btn" id="tabBtnChart" data-tab="chartView">
-          📊 Gráficos de Desempenho
+          📊 Gráficos
         </button>
         <button type="button" class="view-tab-btn" id="tabBtnConselho" data-tab="conselhoView">
           🏛️ Conselho de Classe
         </button>
         <button type="button" class="view-tab-btn" id="tabBtnWeeks" data-tab="weeksView">
-          📅 Acompanhamento por Semana
+          📅 Semanas
         </button>
         <button type="button" class="view-tab-btn" id="tabBtnList" data-tab="listView">
-          📋 Lista com Auditoria Individual
+          📋 Lista por Aluno
         </button>
         <button type="button" class="view-tab-btn" id="tabBtnStudentReport" data-tab="studentReportView">
           👤 Relatório do Aluno
@@ -609,16 +598,16 @@
                     Nome do Aluno <span class="sort-icon">↑</span>
                   </th>
                   <th class="sortable" data-sort="ra">
-                    RA (Código SED) <span class="sort-icon">↕</span>
+                    RA / SED <span class="sort-icon">↕</span>
                   </th>
                   <th class="sortable" data-sort="subject">
                     Matéria / Turma <span class="sort-icon">↕</span>
                   </th>
                   <th class="sortable" data-sort="completed">
-                    Progresso das Atividades <span class="sort-icon">↕</span>
+                    Progresso <span class="sort-icon">↕</span>
                   </th>
                   <th class="sortable" data-sort="grade">
-                    Nota Final (0 a 10) <span class="sort-icon">↕</span>
+                    Nota <span class="sort-icon">↕</span>
                   </th>
                   <th>Situação</th>
                   <th style="text-align: right;">Auditoria</th>

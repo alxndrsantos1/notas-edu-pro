@@ -3243,3 +3243,199 @@ body::after { right: -96px; top: 160px; background: rgba(233, 213, 255, 0.5); }
 @media print {
   .student-report-view .sr-controls { display: none !important; }
 }
+
+/* ==========================================================================
+   Ajustes de Layout: topo compacto, filtros em uma linha, abas fixas e tabelas
+   ========================================================================== */
+
+/* Cartão único com resumo, ações e arquivos carregados */
+.dashboard-topbar {
+  margin-bottom: 12px;
+}
+
+.uploaded-files-card {
+  flex-basis: 100%;
+  margin-top: 0;
+  padding-top: 10px;
+  border-top: 1px solid var(--border-color);
+}
+
+.files-badge-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 0;
+}
+
+.file-chip {
+  padding: 4px 6px 4px 10px;
+  gap: 6px;
+  border-radius: 9999px;
+  max-width: 100%;
+}
+
+.file-chip-icon {
+  display: none;
+}
+
+.file-chip-meta {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.file-chip-name {
+  font-size: 0.8rem;
+  max-width: 220px;
+}
+
+.file-chip-details {
+  font-size: 0.72rem;
+  white-space: nowrap;
+}
+
+/* Busca, filtros e exportações na mesma linha */
+.controls-bar {
+  padding: 12px 16px;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.search-filter-group {
+  flex: 1 1 520px;
+  flex-wrap: nowrap;
+  gap: 8px;
+  min-width: 0;
+}
+
+.search-input-wrapper {
+  flex: 1 1 200px;
+  min-width: 160px;
+}
+
+.search-filter-group .select-dropdown {
+  flex: 0 1 auto;
+  min-width: 0;
+  max-width: 180px;
+}
+
+.export-actions {
+  gap: 8px;
+}
+
+/* Abas sempre à vista ao rolar o relatório */
+.view-tabs-nav {
+  position: sticky;
+  top: 65px;
+  z-index: 30;
+  margin-bottom: 16px;
+  box-shadow: 0 4px 10px -6px rgba(15, 23, 42, 0.25);
+}
+
+/* Matriz: coluna de nomes fixa ao rolar para os lados */
+.report-matrix-table .student-name-col {
+  position: sticky;
+  left: 0;
+  z-index: 1;
+  box-shadow: 1px 0 0 #cbd5e1;
+}
+
+.report-matrix-table td.student-name-col {
+  background-color: #ffffff;
+  min-width: 150px;
+}
+
+.report-matrix-table th,
+.report-matrix-table td {
+  padding-left: 6px;
+  padding-right: 6px;
+}
+
+.report-matrix-table tbody tr:nth-child(even) td.student-name-col {
+  background-color: #eaf2fc;
+}
+
+.report-matrix-table tbody tr:hover td.student-name-col {
+  background-color: #dbeafe;
+}
+
+.report-matrix-table th.sub-col-criteria {
+  padding: 4px 6px;
+}
+
+/* Lista por aluno: linhas mais baixas, sem quebra em nome e situação */
+.grade-table th,
+.grade-table td {
+  padding: 10px 12px;
+}
+
+.student-name-cell,
+.status-pill {
+  white-space: nowrap;
+}
+
+/* Legenda da visão semanal */
+.matrix-legend-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+.matrix-legend-chip + .matrix-legend-chip {
+  margin-left: 12px;
+}
+
+.matrix-legend-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+@media (max-width: 900px) {
+  .search-filter-group {
+    flex-wrap: wrap;
+  }
+
+  .search-filter-group .select-dropdown {
+    flex: 1 1 160px;
+    max-width: none;
+  }
+}
+
+@media (max-width: 768px) {
+  .view-tabs-nav {
+    top: 65px;
+  }
+
+  .dashboard-topbar-actions {
+    width: 100%;
+  }
+
+  .dashboard-topbar-actions .btn {
+    flex: 1;
+  }
+
+  .dashboard-topbar-actions .btn {
+    white-space: nowrap;
+  }
+
+  .file-chip-name {
+    max-width: 120px;
+  }
+
+  /* Filtros empilhados: cada campo com a própria altura */
+  .search-filter-group {
+    flex: 0 0 auto;
+  }
+
+  .search-input-wrapper,
+  .search-filter-group .select-dropdown {
+    flex: 0 0 auto;
+    width: 100%;
+    max-width: none;
+  }
+}

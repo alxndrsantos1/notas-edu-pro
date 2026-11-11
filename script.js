@@ -20,6 +20,7 @@ import { recalculateAllGrades } from './js/grades.js';
 import { initActivityModeSelector, initColumnMappingModal } from './js/mapping.js';
 import { initMatrixRiskControls } from './js/matrix.js';
 import { appState } from './js/state.js';
+import { initStudentReport } from './js/studentReport.js';
 import { initFiltersAndSearch, initStudentModalEvents, initTableSorting } from './js/table.js';
 import { initViewTabs } from './js/tabs.js';
 import { initClearButtons, initDragAndDrop, initFileInputs } from './js/upload.js';
@@ -54,6 +55,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initStudentModalEvents();
   initPdfModalEvents();
   initDemoButton();
+  initStudentReport();
   
   // Inicia o programa limpo, sem carregar dados de exemplo por padrão
   recalculateAllGrades();

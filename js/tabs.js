@@ -2,13 +2,25 @@ import { renderPerformanceChart } from './charts.js';
 import { renderConselhoDeClasseView } from './conselho.js';
 import { renderMatrixReport } from './matrix.js';
 import { appState } from './state.js';
+import { renderStudentReportView } from './studentReport.js';
 import { renderWeeksView } from './weeks.js';
 
 // ==============================================================================
 // 4. CONTROLE DE ABAS (TABS) E VISIBILIDADE DO DASHBOARD
 // ==============================================================================
 
+// Aba -> seção exibida e função que a redesenha
+const TAB_SECTIONS = {
+  matrixView: { section: 'officialReportSection', render: () => renderMatrixReport() },
+  chartView: { section: 'officialChartSection', render: () => renderPerformanceChart() },
+  conselhoView: { section: 'officialConselhoSection', render: () => renderConselhoDeClasseView() },
+  weeksView: { section: 'officialWeeksSection', render: () => renderWeeksView() },
+  listView: { section: 'officialListSection', render: null },
+  studentReportView: { section: 'officialStudentReportSection', render: () => renderStudentReportView() }
+};
+
 export function activateTab(target) {
+  if (!TAB_SECTIONS[target]) target = 'matrixView';
   appState.activeTab = target;
   const tabButtons = document.querySelectorAll('.view-tab-btn');
   tabButtons.forEach(b => {
@@ -19,47 +31,12 @@ export function activateTab(target) {
     }
   });
 
-  const officialReportSec = document.getElementById('officialReportSection');
-  const officialConselhoSec = document.getElementById('officialConselhoSection');
-  const officialWeeksSec = document.getElementById('officialWeeksSection');
-  const officialChartSec = document.getElementById('officialChartSection');
-  const officialListSec = document.getElementById('officialListSection');
-
-  if (target === 'chartView') {
-    if (officialReportSec) officialReportSec.style.display = 'none';
-    if (officialConselhoSec) officialConselhoSec.style.display = 'none';
-    if (officialWeeksSec) officialWeeksSec.style.display = 'none';
-    if (officialChartSec) officialChartSec.style.display = 'block';
-    if (officialListSec) officialListSec.style.display = 'none';
-    renderPerformanceChart();
-  } else if (target === 'matrixView') {
-    if (officialReportSec) officialReportSec.style.display = 'block';
-    if (officialConselhoSec) officialConselhoSec.style.display = 'none';
-    if (officialWeeksSec) officialWeeksSec.style.display = 'none';
-    if (officialChartSec) officialChartSec.style.display = 'none';
-    if (officialListSec) officialListSec.style.display = 'none';
-    renderMatrixReport();
-  } else if (target === 'conselhoView') {
-    if (officialReportSec) officialReportSec.style.display = 'none';
-    if (officialConselhoSec) officialConselhoSec.style.display = 'block';
-    if (officialWeeksSec) officialWeeksSec.style.display = 'none';
-    if (officialChartSec) officialChartSec.style.display = 'none';
-    if (officialListSec) officialListSec.style.display = 'none';
-    renderConselhoDeClasseView();
-  } else if (target === 'weeksView') {
-    if (officialReportSec) officialReportSec.style.display = 'none';
-    if (officialConselhoSec) officialConselhoSec.style.display = 'none';
-    if (officialWeeksSec) officialWeeksSec.style.display = 'block';
-    if (officialChartSec) officialChartSec.style.display = 'none';
-    if (officialListSec) officialListSec.style.display = 'none';
-    renderWeeksView();
-  } else if (target === 'listView') {
-    if (officialReportSec) officialReportSec.style.display = 'none';
-    if (officialConselhoSec) officialConselhoSec.style.display = 'none';
-    if (officialWeeksSec) officialWeeksSec.style.display = 'none';
-    if (officialChartSec) officialChartSec.style.display = 'none';
-    if (officialListSec) officialListSec.style.display = 'block';
-  }
+  Object.entries(TAB_SECTIONS).forEach(([tab, cfg]) => {
+    const sec = document.getElementById(cfg.section);
+    if (sec) sec.style.display = tab === target ? 'block' : 'none';
+  });
+  const cfg = TAB_SECTIONS[target];
+  if (cfg.render) cfg.render();
 }
 
 export function scrollToReportSection() {

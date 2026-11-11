@@ -4,6 +4,7 @@ import { buildOfficialMatrix, renderMatrixReport } from './matrix.js';
 import { appState } from './state.js';
 import { updateDashboardAndTable, updateSubjectFilterOptions } from './table.js';
 import { updateAppViewState } from './tabs.js';
+import { renderStudentReportView } from './studentReport.js';
 import { renderUploadedFilesChips } from './upload.js';
 import { showToast } from './utils.js';
 
@@ -112,6 +113,7 @@ export function loadOfficialStandardDemo() {
         ra: rosterStudent.ra,
         subject: subjName,
         fileName: `${subjName}_3A.csv`,
+        rowIndex: idx,
         completedActivities: completedTarget,
         totalActivities: totalActs,
         percentage: pct,
@@ -143,6 +145,7 @@ export function loadOfficialStandardDemo() {
   updateSubjectFilterOptions();
   updateDashboardAndTable();
   renderUploadedFilesChips();
+  renderStudentReportView();
   updateAppViewState(true);
 
   showToast('Exemplo oficial da Turma 3A carregado com sucesso!', 'success');

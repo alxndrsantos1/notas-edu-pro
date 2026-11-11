@@ -5,12 +5,96 @@ import { cleanString, normalizeString } from './utils.js';
 // 2. REGRAS DE NEGÓCIO E CLASSIFICAÇÃO DE COLUNAS
 // ==============================================================================
 
+// ------------------------------------------------------------------------------
+// Nome do arquivo do AVA: turma, matéria e bimestre
+// Ex.: "2DS_LogicaeLinguagemdeProgramacao_4BI.csv" -> turma 2DS, "Lógica e Linguagem de
+// Programação", 4º bimestre. Também aceita "Mobile_1bim.csv", "2º bimestre", "b3".
+// ------------------------------------------------------------------------------
+const PADROES_BIMESTRE = [
+  /(?:^|[\s_-])([1-4])\s*(?:º|°|ª|o)?\s*bi(?:m(?:estre)?)?(?=$|[\s_.-])/i,
+  /(?:^|[\s_-])bim(?:estre)?\s*([1-4])(?=$|[\s_.-])/i,
+  /(?:^|[\s_-])b([1-4])(?=$|[\s_.-])/i
+];
+const PADRAO_TURMA = /(?:^|[\s_])(\d{1,2}[A-Za-z]{1,4})(?=$|[\s_])/;
+
+// Matérias conhecidas: servem para separar nomes colados ("LogicaeLinguagem...") e pôr acentos
+const MATERIAS_CONHECIDAS = [
+  'Biologia', 'Física', 'Química', 'Matemática', 'Geografia', 'História', 'Filosofia', 'Sociologia', 'Arte',
+  'Educação Física', 'Língua Portuguesa', 'Língua Inglesa', 'Língua Espanhola', 'Projeto de Vida', 'Eletiva',
+  'Carreira e Competências para o Mercado de Trabalho',
+  'Lógica e Linguagem de Programação',
+  'Processos de Desenvolvimento de Software e Metodologias Ágeis',
+  'Redes de Computadores e Segurança da Informação na Nuvem',
+  'Banco de Dados', 'Programação Web', 'Desenvolvimento Web', 'Desenvolvimento Mobile', 'Programação Mobile',
+  'Front-End', 'Back-End', 'Versionamento', 'Inteligência Artificial', 'Ciência de Dados', 'Internet das Coisas',
+  'Análise e Projeto de Sistemas', 'Engenharia de Software', 'Sistemas Operacionais', 'Computação em Nuvem',
+  'Segurança da Informação', 'Design de Interfaces', 'Experiência do Usuário', 'Empreendedorismo',
+  'Ética e Cidadania', 'Fundamentos de Informática', 'Tecnologia da Informação', 'Robótica', 'Projetos'
+];
+const CONECTORES = ['de', 'da', 'do', 'das', 'dos', 'e', 'para', 'o', 'a', 'na', 'no', 'em', 'com'];
+const espremer = s => normalizeString(s).replace(/[^a-z0-9]/g, '');
+const MATERIA_POR_CHAVE = new Map(MATERIAS_CONHECIDAS.map(m => [espremer(m), m]));
+const PALAVRAS = new Map();
+MATERIAS_CONHECIDAS.forEach(m => m.split(' ').forEach(p => {
+  const k = espremer(p);
+  if (k && !PALAVRAS.has(k)) PALAVRAS.set(k, CONECTORES.includes(p.toLowerCase()) ? p.toLowerCase() : p);
+}));
+CONECTORES.forEach(c => PALAVRAS.set(c, c));
+
+// Separa um nome colado em palavras conhecidas (menor número de palavras); null se não der
+function separarPalavras(trecho) {
+  const s = espremer(trecho);
+  if (!s) return null;
+  const melhor = new Array(s.length + 1).fill(null);
+  melhor[0] = [];
+  for (let i = 0; i < s.length; i++) {
+    if (!melhor[i]) continue;
+    for (let j = i + 1; j <= s.length; j++) {
+      const p = PALAVRAS.get(s.slice(i, j));
+      if (p && (!melhor[j] || melhor[j].length > melhor[i].length + 1)) melhor[j] = [...melhor[i], p];
+    }
+  }
+  const r = melhor[s.length];
+  if (!r) return null;
+  return r.map((p, i) => (i === 0 ? p.charAt(0).toUpperCase() + p.slice(1) : p)).join(' ');
+}
+
+function nomeBonitoDaMateria(texto) {
+  const limpo = texto.replace(/\s+/g, ' ').trim();
+  if (!limpo) return '';
+  const conhecida = MATERIA_POR_CHAVE.get(espremer(limpo));
+  if (conhecida) return conhecida;
+  // Cada parte separada por espaço: tenta separar palavras coladas; senão mantém como veio
+  return limpo.split(' ').map(parte => separarPalavras(parte) || parte).join(' ');
+}
+
+export function parseFileNameInfo(fileName) {
+  let base = (fileName || '').replace(/\.[^/.]+$/, '');
+  let bimestre = null;
+  for (const re of PADROES_BIMESTRE) {
+    const m = base.match(re);
+    if (m) {
+      bimestre = parseInt(m[1], 10);
+      base = base.replace(m[0], ' ');
+      break;
+    }
+  }
+  let turma = '';
+  const t = base.match(PADRAO_TURMA);
+  if (t) {
+    turma = t[1].toUpperCase();
+    base = base.replace(t[0], ' ');
+  }
+  const materia = nomeBonitoDaMateria(base.replace(/_+/g, ' ').replace(/^[\s.-]+|[\s.-]+$/g, ''));
+  return { turma, materia, bimestre };
+}
+
 export function extractSubjectFromFileName(fileName) {
   if (!fileName) return 'Geral';
-  let baseName = fileName.replace(/\.[^/.]+$/, '');
-  baseName = baseName.replace(/[_-]+/g, ' ');
-  baseName = baseName.replace(/([a-zA-Z])([0-9]+[a-zA-Z]?)/g, '$1 $2');
-  return baseName.trim();
+  const { materia, bimestre } = parseFileNameInfo(fileName);
+  const nome = materia || fileName.replace(/\.[^/.]+$/, '');
+  // O bimestre fica no nome para não misturar o mesmo componente de bimestres diferentes na matriz
+  return bimestre ? `${nome} (${bimestre}º bim.)` : nome;
 }
 
 export function isIgnoredNonEvaluativeColumn(header) {

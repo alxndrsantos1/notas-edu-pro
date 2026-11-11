@@ -1,3 +1,4 @@
+import { parseFileNameInfo } from './rules.js';
 import { renderPerformanceChart } from './charts.js';
 import { renderConselhoDeClasseView } from './conselho.js';
 import { appState } from './state.js';
@@ -124,8 +125,11 @@ export function buildOfficialMatrix() {
   // Tenta inferir nome da turma
   let inferredTurma = 'Turma 3A';
   const firstFileName = appState.processedFiles[0].fileName;
+  const turmaDoNome = parseFileNameInfo(firstFileName).turma;
   const match = firstFileName.match(/([0-9]+[a-zA-Z])/);
-  if (match) {
+  if (turmaDoNome) {
+    inferredTurma = `Turma ${turmaDoNome}`;
+  } else if (match) {
     inferredTurma = `Turma ${match[1].toUpperCase()}`;
   }
 

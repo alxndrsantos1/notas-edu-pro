@@ -1,5 +1,5 @@
 import { computeGradesForFile, recalculateAllGrades } from './grades.js';
-import { findStudentNameColumn, findStudentRAColumn } from './rules.js';
+import { findStudentNameColumn, findStudentRAColumn, isEvaluativeColumn } from './rules.js';
 import { appState } from './state.js';
 import { updateAppViewState } from './tabs.js';
 import { cleanString, normalizeString, showToast } from './utils.js';
@@ -8,118 +8,152 @@ import { cleanString, normalizeString, showToast } from './utils.js';
 // 6. PARSING DE ARQUIVOS COM PAPAPARSE
 // ==============================================================================
 
-export function parseCsvFile(file) {
-  return new Promise((resolve, reject) => {
-    if (typeof Papa === 'undefined') {
-      reject(new Error('A biblioteca PapaParse não está disponível.'));
-      return;
+const EXTENSOES_PLANILHA = /\.(xlsx|xlsm|xls|ods)$/i;
+
+/**
+ * Lê o arquivo como tabela (lista de linhas). Aceita CSV (UTF-8, UTF-16 do "CSV compatível
+ * com Excel" do AVA, ou Windows-1252) e planilhas Excel/ODS, sempre pela primeira aba.
+ */
+async function readMatrixFromFile(file) {
+  const buffer = await file.arrayBuffer();
+  const bytes = new Uint8Array(buffer);
+  const pareceZip = bytes[0] === 0x50 && bytes[1] === 0x4b; // .xlsx / .ods
+  const pareceXlsAntigo = bytes[0] === 0xd0 && bytes[1] === 0xcf; // .xls
+
+  if (pareceZip || pareceXlsAntigo || EXTENSOES_PLANILHA.test(file.name)) {
+    if (typeof XLSX === 'undefined') {
+      throw new Error('A biblioteca de planilhas não carregou. Verifique a internet e recarregue a página.');
     }
+    const wb = XLSX.read(buffer, { type: 'array' });
+    const aba = wb.Sheets[wb.SheetNames[0]];
+    return XLSX.utils.sheet_to_json(aba, { header: 1, defval: '', raw: false, blankrows: false });
+  }
 
-    Papa.parse(file, {
-      header: false,
-      skipEmptyLines: 'greedy',
-      encoding: 'UTF-8',
-      complete: (results) => {
-        if (!results.data || results.data.length === 0) {
-          reject(new Error(`O arquivo "${file.name}" está vazio.`));
-          return;
-        }
+  if (typeof Papa === 'undefined') {
+    throw new Error('A biblioteca PapaParse não está disponível.');
+  }
+  let texto;
+  if (bytes[0] === 0xff && bytes[1] === 0xfe) {
+    texto = new TextDecoder('utf-16le').decode(bytes.subarray(2));
+  } else if (bytes[0] === 0xfe && bytes[1] === 0xff) {
+    texto = new TextDecoder('utf-16be').decode(bytes.subarray(2));
+  } else {
+    texto = new TextDecoder('utf-8').decode(bytes);
+    if (texto.includes('\uFFFD')) texto = new TextDecoder('windows-1252').decode(bytes);
+  }
+  return Papa.parse(texto, { header: false, skipEmptyLines: 'greedy' }).data;
+}
 
-        const rawMatrix = results.data;
-        let headerRowIndex = 0;
+export async function parseCsvFile(file) {
+  const rawMatrix = await readMatrixFromFile(file);
+  if (!rawMatrix || rawMatrix.length === 0) {
+    throw new Error(`O arquivo "${file.name}" está vazio.`);
+  }
 
-        for (let i = 0; i < Math.min(rawMatrix.length, 10); i++) {
-          const rowText = rawMatrix[i].map(c => normalizeString(c)).join(' | ');
-          if (
-            rowText.includes('pause e responda') || 
-            rowText.includes('registro') || 
-            rowText.includes('nome') || 
-            rowText.includes('aluno') || 
-            rowText.includes('sed') || 
-            rowText.includes('ra')
-          ) {
-            headerRowIndex = i;
-            break;
-          }
-        }
+  let headerRowIndex = 0;
 
-        const rawHeaders = rawMatrix[headerRowIndex];
-        const columnMappings = [];
-        const headerCounts = {};
-        rawHeaders.forEach((h, colIdx) => {
-          let cleanH = cleanString(h);
-          // Caso especial do Moodle: se a coluna 0 está em branco ou sem nome, é a coluna do Nome do Aluno!
-          if (!cleanH && colIdx === 0) {
-            cleanH = 'Nome do Aluno';
-          }
-          // Ignora cabeçalhos em branco secundários (colunas de data/hora do Moodle com header vazio)
-          if (cleanH) {
-            // Cabeçalhos repetidos recebem sufixo para não sobrescreverem uns aos outros no objeto da linha
-            headerCounts[cleanH] = (headerCounts[cleanH] || 0) + 1;
-            if (headerCounts[cleanH] > 1) {
-              cleanH = `${cleanH} (${headerCounts[cleanH]})`;
-            }
-            columnMappings.push({
-              headerName: cleanH,
-              colIndex: colIdx
-            });
-          }
-        });
+  for (let i = 0; i < Math.min(rawMatrix.length, 10); i++) {
+    const rowText = rawMatrix[i].map(c => normalizeString(c)).join(' | ');
+    if (
+      rowText.includes('pause e responda') || 
+      rowText.includes('registro') || 
+      rowText.includes('nome') || 
+      rowText.includes('aluno') || 
+      rowText.includes('sed') || 
+      rowText.includes('ra')
+    ) {
+      headerRowIndex = i;
+      break;
+    }
+  }
 
-        const headers = columnMappings.map(c => c.headerName);
-        const dataRows = [];
-
-        for (let i = headerRowIndex + 1; i < rawMatrix.length; i++) {
-          const rowVals = rawMatrix[i];
-          if (!rowVals || rowVals.length === 0) continue;
-          
-          const rowObj = {};
-          let hasVal = false;
-          columnMappings.forEach(col => {
-            const v = cleanString(rowVals[col.colIndex]);
-            if (v) hasVal = true;
-            rowObj[col.headerName] = v;
-          });
-
-          if (hasVal) dataRows.push(rowObj);
-        }
-
-        if (dataRows.length === 0) {
-          reject(new Error(`Nenhuma linha de alunos encontrada em "${file.name}".`));
-          return;
-        }
-
-        const sampleRows = dataRows.slice(0, 5);
-        const nameColumn = findStudentNameColumn(headers, sampleRows);
-        const raColumn = findStudentRAColumn(headers, sampleRows);
-
-        const rawFileObj = {
-          fileName: file.name,
-          headers,
-          rawRows: dataRows,
-          nameColumn,
-          raColumn
-        };
-
-        const computed = computeGradesForFile(rawFileObj);
-        resolve(computed);
-      },
-      error: (err) => {
-        reject(new Error(`Erro ao ler "${file.name}": ${err.message}`));
+  const rawHeaders = rawMatrix[headerRowIndex];
+  const columnMappings = [];
+  const headerCounts = {};
+  // No AVA, a coluna sem título logo após cada atividade guarda a data de conclusão
+  const dateColumns = [];
+  let lastHeader = null;
+  rawHeaders.forEach((h, colIdx) => {
+    let cleanH = cleanString(h);
+    // Caso especial do Moodle: se a coluna 0 está em branco ou sem nome, é a coluna do Nome do Aluno!
+    if (!cleanH && colIdx === 0) {
+      cleanH = 'Nome do Aluno';
+    }
+    // Ignora cabeçalhos em branco secundários (colunas de data/hora do Moodle com header vazio)
+    if (cleanH) {
+      // Cabeçalhos repetidos recebem sufixo para não sobrescreverem uns aos outros no objeto da linha
+      headerCounts[cleanH] = (headerCounts[cleanH] || 0) + 1;
+      if (headerCounts[cleanH] > 1) {
+        cleanH = `${cleanH} (${headerCounts[cleanH]})`;
       }
-    });
+      columnMappings.push({
+        headerName: cleanH,
+        colIndex: colIdx
+      });
+      lastHeader = cleanH;
+    } else if (lastHeader && isEvaluativeColumn(lastHeader, 'both')) {
+      dateColumns.push({ headerName: lastHeader, colIndex: colIdx });
+      lastHeader = null;
+    }
   });
+
+  const headers = columnMappings.map(c => c.headerName);
+  const dataRows = [];
+  const rowDates = [];
+
+  for (let i = headerRowIndex + 1; i < rawMatrix.length; i++) {
+    const rowVals = rawMatrix[i];
+    if (!rowVals || rowVals.length === 0) continue;
+    
+    const rowObj = {};
+    let hasVal = false;
+    columnMappings.forEach(col => {
+      const v = cleanString(rowVals[col.colIndex]);
+      if (v) hasVal = true;
+      rowObj[col.headerName] = v;
+    });
+
+    if (hasVal) {
+      dataRows.push(rowObj);
+      const datas = {};
+      dateColumns.forEach(dc => {
+        const d = cleanString(rowVals[dc.colIndex]);
+        if (d) datas[dc.headerName] = d;
+      });
+      rowDates.push(datas);
+    }
+  }
+
+  if (dataRows.length === 0) {
+    throw new Error(`Nenhuma linha de alunos encontrada em "${file.name}".`);
+  }
+
+  const sampleRows = dataRows.slice(0, 5);
+  const nameColumn = findStudentNameColumn(headers, sampleRows);
+  const raColumn = findStudentRAColumn(headers, sampleRows);
+
+  const rawFileObj = {
+    fileName: file.name,
+    headers,
+    rawRows: dataRows,
+    rowDates,
+    nameColumn,
+    raColumn
+  };
+
+  return computeGradesForFile(rawFileObj);
 }
 
 export async function handleFilesSelected(files) {
   if (!files || files.length === 0) return;
 
-  const validFiles = Array.from(files).filter(f => 
-    f.name.toLowerCase().endsWith('.csv') || f.type === 'text/csv' || f.type === 'application/vnd.ms-excel'
+  const validFiles = Array.from(files).filter(f =>
+    /\.(csv|txt)$/i.test(f.name) || EXTENSOES_PLANILHA.test(f.name) ||
+    f.type === 'text/csv' || f.type === 'application/vnd.ms-excel'
   );
 
   if (validFiles.length === 0) {
-    showToast('Por favor, selecione arquivos .csv válidos.', 'error');
+    showToast('Selecione arquivos CSV ou Excel (.xlsx) exportados do AVA.', 'error');
     return;
   }
 

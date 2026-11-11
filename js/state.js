@@ -52,5 +52,19 @@ export const appState = {
   weeksFocus: null, // Semana em foco na aba de acompanhamento (ex: 18)
   weeksStatusFilter: 'all', // Filtro de status na visão semanal
   customTurmaName: '',
-  customDisciplinaName: ''
+  customDisciplinaName: '',
+  // Relatório completo do aluno (aba "Relatório do Aluno")
+  studentReport: {
+    key: null, // aluno selecionado
+    excludedBims: new Set(), // bimestres desmarcados (0 = sem bimestre identificado)
+    excludedTipos: new Set(), // 'pause' | 'registro'
+    excludedMaterias: new Set(),
+    // Faixas de semanas de cada bimestre (editáveis na tela)
+    ranges: [
+      { bim: 1, de: 1, ate: 10 },
+      { bim: 2, de: 11, ate: 20 },
+      { bim: 3, de: 21, ate: 30 },
+      { bim: 4, de: 31, ate: 40 }
+    ]
+  }
 };

@@ -6,6 +6,7 @@ import { extractSubjectFromFileName, extractWeekFromActivityName, isActivityComp
 import { appState } from './state.js';
 import { updateDashboardAndTable, updateSubjectFilterOptions } from './table.js';
 import { updateAppViewState } from './tabs.js';
+import { renderStudentReportView } from './studentReport.js';
 import { renderUploadedFilesChips } from './upload.js';
 import { cleanString } from './utils.js';
 import { renderWeeksView, updateWeeksFilterUI } from './weeks.js';
@@ -152,6 +153,7 @@ export function computeGradesForFile(fileObj) {
       ra: studentRA,
       subject: subjectName,
       fileName: fileName,
+      rowIndex: index,
       completedActivities: completedCount,
       totalActivities: totalActivities,
       percentage: Math.round(percentage),
@@ -207,5 +209,6 @@ export function recalculateAllGrades() {
   updateSubjectFilterOptions();
   updateDashboardAndTable();
   renderUploadedFilesChips();
+  renderStudentReportView();
   updateAppViewState(false);
 }

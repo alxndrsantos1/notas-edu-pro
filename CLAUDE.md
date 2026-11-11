@@ -15,6 +15,20 @@ Ajuda a extrair as notas do AVA da Educação Profissional (o professor exporta 
 - O cabeçalho `.print-header-only` só aparece na impressão. O PDF exportado ainda menciona "EduGrade" (nome antigo); só mude se o Alexandre pedir.
 - O botão "dados de exemplo" (`#btnLoadDemo`) carrega uma turma fictícia, ótimo para testar.
 
+## Leitura de arquivos
+- Formato real do AVA: um arquivo por componente e bimestre, com nome `<turma>_<Componente>_<n>BI.csv`, ex.: `2DS_LogicaeLinguagemdeProgramacao_4BI.csv`. É o "CSV compatível com Excel": UTF-16, separado por tabulação. Colunas: nome (sem título), "Identificação de usuário", e-mail, "ID Externo/Código Usuario SED" e, para cada atividade, a situação seguida de uma coluna sem título com a data (`2026-10-28 12:48:57`). As semanas aparecem no código da atividade (`S21A3a`); no 4º bimestre de 2026 foram S21 a S26, então o nome do arquivo é a fonte confiável do bimestre.
+- `parseFileNameInfo()` em `js/rules.js` tira turma, componente e bimestre do nome do arquivo e separa nomes colados ("LogicaeLinguagemdeProgramacao" → "Lógica e Linguagem de Programação") usando a lista `MATERIAS_CONHECIDAS`. Se aparecer um componente novo com nome feio, acrescente-o nessa lista. Na matriz, o bimestre fica no nome ("(4º bim.)") para não misturar bimestres.
+- `js/upload.js` aceita CSV (UTF-8, UTF-16 do "CSV compatível com Excel" do AVA, ou Windows-1252) e planilhas `.xlsx`/`.xls`/`.ods` (primeira aba, via SheetJS da CDN).
+- A coluna sem título logo depois de cada atividade guarda a data de conclusão do AVA: fica em `rowDates` (alinhado com `rawRows`). Cada aluno tem `rowIndex` apontando para a sua linha em `rawRows`.
+
+## Aba "Relatório do Aluno" (`js/studentReport.js`)
+- Junta todos os "Pause e Responda" e "Registros de Aula" de um aluno, de todos os arquivos carregados, por matéria e bimestre, e imprime (ou salva em PDF pelo navegador) um relatório só. "Imprimir todos" gera um por página.
+- Bimestre de cada atividade: pelo nome do arquivo quando ele indica (ex.: `_4BI`, `Mobile_1bim.csv`, `2º bimestre`, `bimestre 3`, `b4`); senão pela semana no nome da atividade (`S12`), com faixas editáveis na tela (padrão 1–10, 11–20, 21–30, 31–40). Sem nenhum dos dois, vai para "Sem bimestre identificado".
+- A matéria vem do nome do arquivo sem a marca de bimestre, para juntar arquivos separados por bimestre da mesma matéria.
+- Alunos são unidos entre arquivos pelo RA (quando confiável no arquivo) ou pelo nome.
+- Independe do seletor "Ambos / Pause / Registro" e do recorte de semanas do resto do app: tem os próprios filtros.
+- Para testar sem internet, sirva o `dist` e, no Playwright, entregue PapaParse e SheetJS de cópias locais (`npm install papaparse@5.4.1 xlsx@0.18.5` numa pasta temporária, nunca no repositório).
+
 ## Idioma e público
 - Tudo em português do Brasil (interface, textos, commits e respostas).
 - Público: professores da rede estadual de SP (usam no computador e no celular, em redes de escola). Mantenha a interface simples e legível.

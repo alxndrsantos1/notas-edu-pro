@@ -86,9 +86,9 @@
               </div>
               
               <div class="dropzone-actions">
-                <input type="file" id="fileInput" class="file-input-hidden" accept=".csv, text/csv, application/vnd.ms-excel" multiple />
+                <input type="file" id="fileInput" class="file-input-hidden" accept=".csv,.xlsx,.xls,.ods,text/csv,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" multiple />
                 <button type="button" class="btn btn-primary btn-upload-main" onclick="document.getElementById('fileInput').click()">
-                  📂 Selecionar Arquivo CSV
+                  📂 Selecionar arquivos (CSV ou Excel)
                 </button>
               </div>
             </div>
@@ -241,6 +241,9 @@
         </button>
         <button type="button" class="view-tab-btn" id="tabBtnList" data-tab="listView">
           📋 Lista com Auditoria Individual
+        </button>
+        <button type="button" class="view-tab-btn" id="tabBtnStudentReport" data-tab="studentReportView">
+          👤 Relatório do Aluno
         </button>
       </div>
 
@@ -625,6 +628,46 @@
             </table>
           </div>
         </div>
+      </section>
+
+      <!-- VISÃO 6: RELATÓRIO COMPLETO DO ALUNO (todas as matérias e bimestres, para imprimir) -->
+      <section id="officialStudentReportSection" class="student-report-view" style="display: none;">
+        <div class="card sr-controls">
+          <h3 class="section-title">👤 Relatório completo do aluno</h3>
+          <p class="section-subtitle">Junta todos os "Pause e Responda" e "Registros de Aula" do aluno, de todas as matérias carregadas, separados por bimestre, num relatório só para imprimir. Carregue um arquivo por matéria ou vários de uma vez (CSV ou Excel exportado do AVA).</p>
+
+          <div class="sr-grid">
+            <label class="sr-field">
+              <span class="mapping-form-label">Aluno</span>
+              <select id="srAluno" class="mapping-select"></select>
+            </label>
+            <div class="sr-field">
+              <span class="mapping-form-label">Bimestres</span>
+              <div id="srBims" class="sr-chips"></div>
+            </div>
+            <div class="sr-field">
+              <span class="mapping-form-label">Atividades</span>
+              <div id="srTipos" class="sr-chips"></div>
+            </div>
+            <div class="sr-field sr-wide">
+              <span class="mapping-form-label">Matérias</span>
+              <div id="srMaterias" class="sr-chips"></div>
+            </div>
+          </div>
+
+          <details class="sr-weeks">
+            <summary>Ajustar as semanas de cada bimestre</summary>
+            <div id="srRanges" class="sr-ranges"></div>
+            <p class="sr-hint">O bimestre de cada atividade vem do nome do arquivo, quando ele indica o bimestre (ex.: "Mobile_1bim.csv"). Se não indicar, vem da semana no nome da atividade (ex.: "S12" = semana 12), usando as faixas acima.</p>
+          </details>
+
+          <div class="sr-actions">
+            <button type="button" class="btn btn-primary" id="srPrint">🖨️ Imprimir ou salvar PDF</button>
+            <button type="button" class="btn btn-secondary" id="srPrintAll">Imprimir todos os alunos (um por página)</button>
+          </div>
+        </div>
+
+        <div id="srPreview" class="sr-preview card"></div>
       </section>
 
       </div><!-- Fim do #dashboardView -->
